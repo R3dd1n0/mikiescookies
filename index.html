@@ -518,23 +518,22 @@ function enviarPedido(e) {
     berry:       qtds['berry'],
   };
 
+  // Dispara para o GAS sem aguardar — processamento ocorre em background
   const url = SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
-  fetch(url, { method:'GET', mode:'no-cors' })
-  .catch(err => console.warn('Sheets:', err))
-  .finally(() => {
-    const freteStr = frete > 0 ? `R$ ${frete},00` : 'Grátis';
-    pedidoTotal = total;
-    document.getElementById('btnPagarPix').textContent = `Pagar R$ ${total},00 via Pix →`;
-    document.getElementById('summaryConfirm').innerHTML =
-      itens.map(p => `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`).join('')
-      + `<hr class="summary-divider">`
-      + `<div class="summary-row summary-frete"><span>Entrega · ${entregaLabel}</span><span>${freteStr}</span></div>`
-      + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`;
-    document.getElementById('waLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
-    document.getElementById('formSection').style.display = 'none';
-    document.getElementById('successScreen').classList.add('visible');
-    document.getElementById('successScreen').scrollIntoView({behavior:'smooth', block:'center'});
-  });
+  fetch(url, { method:'GET', mode:'no-cors' }).catch(err => console.warn('Sheets:', err));
+
+  // Exibe tela de sucesso imediatamente, sem esperar o GAS
+  pedidoTotal = total;
+  document.getElementById('btnPagarPix').textContent = `Pagar R$ ${total},00 via Pix →`;
+  document.getElementById('summaryConfirm').innerHTML =
+    itens.map(p => `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`).join('')
+    + `<hr class="summary-divider">`
+    + `<div class="summary-row summary-frete"><span>Entrega · ${entregaLabel}</span><span>${freteStr}</span></div>`
+    + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`;
+  document.getElementById('waLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('successScreen').classList.add('visible');
+  document.getElementById('successScreen').scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 document.getElementById('whatsapp').addEventListener('input', function(e) {
