@@ -132,6 +132,31 @@
   .empty-cart { text-align:center; font-size:13.5px; color:var(--light-txt); padding:0.5rem 0; }
   .summary-row { display:flex; justify-content:space-between; font-size:14px; color:var(--mid-txt); margin-bottom:6px; }
   .summary-total { display:flex; justify-content:space-between; font-size:1.1rem; font-weight:600; color:var(--bordo); border-top:1px solid var(--bege); padding-top:10px; margin-top:8px; }
+  .summary-frete { color:var(--caramel); font-style:italic; }
+  .summary-divider { border:none; border-top:1px solid var(--bege); margin:8px 0 6px; }
+
+  /* Entrega */
+  .entrega-section { margin-bottom:1.25rem; }
+  .entrega-section > label { display:block; font-size:13px; font-weight:500; color:var(--mid-txt); margin-bottom:8px; }
+  .entrega-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  @media(max-width:540px) { .entrega-grid { grid-template-columns:1fr; } }
+  .entrega-card { position:relative; }
+  .entrega-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
+  .entrega-card label {
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding:14px 10px; border:1.5px solid rgba(107,15,42,0.18);
+    border-radius:14px; cursor:pointer; background:var(--bege-lt);
+    transition:all 0.2s ease; gap:3px; height:100%;
+  }
+  .entrega-card label:hover { border-color:var(--caramel); }
+  .entrega-card input:checked + label { border-color:var(--bordo); background:var(--cream); box-shadow:0 0 0 2px rgba(107,15,42,0.12); }
+  .entrega-icon { font-size:1.5rem; margin-bottom:2px; }
+  .entrega-nome { font-size:13px; font-weight:600; color:var(--bordo); }
+  .entrega-preco { font-size:12px; color:var(--caramel); font-weight:500; }
+  .entrega-note { font-size:10.5px; color:var(--light-txt); line-height:1.4; margin-top:2px; }
+
+  /* Badge produtos especiais */
+  .card-badge { display:inline-block; background:var(--bordo); color:#fff; font-size:9.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; padding:2px 8px; border-radius:20px; margin-bottom:5px; }
 
   /* PIX — oculto até clicar em fazer pedido */
   .pix-box {
@@ -242,16 +267,41 @@
       <input type="text" id="nome" placeholder="Como você se chama?" autocomplete="name">
       <span class="field-error" id="erro-nome"></span>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="whatsapp">WhatsApp (com DDD)</label>
-        <input type="tel" id="whatsapp" placeholder="85 9 9999-9999" autocomplete="tel" inputmode="numeric" maxlength="16">
-        <div class="form-note">Confirmamos o pedido por lá</div>
-        <span class="field-error" id="erro-whatsapp"></span>
-      </div>
-      <div class="form-group">
-        <label for="bairro">Bairro / Referência</label>
-        <input type="text" id="bairro" placeholder="Ex: Aldeota, Fortaleza" autocomplete="address-level3">
+    <div class="form-group">
+      <label for="whatsapp">WhatsApp (com DDD)</label>
+      <input type="tel" id="whatsapp" placeholder="85 9 9999-9999" autocomplete="tel" inputmode="numeric" maxlength="16">
+      <div class="form-note">Confirmamos o pedido por lá</div>
+      <span class="field-error" id="erro-whatsapp"></span>
+    </div>
+
+    <div class="entrega-section">
+      <label>Entrega / Retirada</label>
+      <div class="entrega-grid">
+        <div class="entrega-card">
+          <input type="radio" name="entrega" id="ent-fortaleza" value="fortaleza" data-frete="10" data-label="Fortaleza" checked>
+          <label for="ent-fortaleza">
+            <span class="entrega-icon">🛵</span>
+            <span class="entrega-nome">Fortaleza</span>
+            <span class="entrega-preco">+ R$ 10,00</span>
+          </label>
+        </div>
+        <div class="entrega-card">
+          <input type="radio" name="entrega" id="ent-metropolitana" value="metropolitana" data-frete="20" data-label="Reg. Metropolitana">
+          <label for="ent-metropolitana">
+            <span class="entrega-icon">🚗</span>
+            <span class="entrega-nome">Reg. Metropolitana</span>
+            <span class="entrega-preco">+ R$ 20,00</span>
+          </label>
+        </div>
+        <div class="entrega-card">
+          <input type="radio" name="entrega" id="ent-retirada" value="retirada" data-frete="0" data-label="Retirada">
+          <label for="ent-retirada">
+            <span class="entrega-icon">🏠</span>
+            <span class="entrega-nome">Retirada</span>
+            <span class="entrega-preco">Grátis</span>
+            <span class="entrega-note">Endereço a confirmar · Seg–Sex 8h–18h</span>
+          </label>
+        </div>
       </div>
     </div>
     <span class="field-error" id="erro-itens"></span>
@@ -294,11 +344,14 @@ const IMGS = {
 };
 
 const produtos = [
-  { id:'choc_branco', nome:'Chocolate Branco', sub:'massa tradicional com gotas de choco branco',              preco:12, img:IMGS.choc_branco },
-  { id:'choc_leite',  nome:'Chocolate ao Leite', sub:'massa tradicional com gotas de choco ao leite',          preco:12, img:IMGS.choc_leite  },
-  { id:'dark',        nome:'Black',            sub:'massa cacau black com gotas de choco ao leite e amargo',   preco:12, img:IMGS.dark        },
-  { id:'red_velvet',  nome:'Red Velvet',       sub:'massa red incrível com gotas de choco branco',             preco:12, img:IMGS.red_velvet  },
-  { id:'berry',       nome:'Berry',            sub:'massa tradicional com gotas de choco branco e de morango', preco:12, img:IMGS.berry       },
+  { id:'choc_branco',    nome:'Chocolate Branco',   sub:'massa tradicional com gotas de choco branco',              preco:12, img:IMGS.choc_branco, active:true },
+  { id:'choc_leite',     nome:'Chocolate ao Leite', sub:'massa tradicional com gotas de choco ao leite',            preco:12, img:IMGS.choc_leite,  active:true },
+  { id:'dark',           nome:'Black',              sub:'massa cacau black com gotas de choco ao leite e amargo',   preco:12, img:IMGS.dark,        active:true },
+  { id:'red_velvet',     nome:'Red Velvet',         sub:'massa red incrível com gotas de choco branco',             preco:12, img:IMGS.red_velvet,  active:true },
+  { id:'berry',          nome:'Berry',              sub:'massa tradicional com gotas de choco branco e de morango', preco:12, img:IMGS.berry,       active:true },
+  // Produtos especiais — altere active:false → active:true para exibir no cardápio
+  // Lembre de adicionar a coluna correspondente na planilha e no GAS antes de ativar
+  // { id:'lata_namorados', nome:'Lata Namorados', sub:'Caixa especial com 12 cookies sortidos. Sob encomenda.', preco:59, img:IMGS.choc_branco, active:false, badge:'Encomenda' },
 ];
 
 const qtds = {};
@@ -306,10 +359,11 @@ produtos.forEach(p => qtds[p.id] = 0);
 
 function renderGrid() {
   const grid = document.getElementById('cookieGrid');
-  grid.innerHTML = produtos.map(p => `
+  grid.innerHTML = produtos.filter(p => p.active).map(p => `
     <div class="cookie-card ${qtds[p.id]>0?'selected':''}" id="card-${p.id}">
       <img class="card-img" src="${p.img}" alt="${p.nome}" loading="lazy">
       <div class="card-body">
+        ${p.badge ? `<div class="card-badge">${p.badge}</div>` : ''}
         <div class="card-name">${p.nome}</div>
         <div class="card-desc">${p.sub}</div>
         <div class="card-price">R$ ${p.preco},00 / unidade</div>
@@ -334,15 +388,22 @@ function changeQty(id, delta) {
 
 function renderSummary() {
   const box = document.getElementById('summaryBox');
-  const itens = produtos.filter(p => qtds[p.id] > 0);
+  const itens = produtos.filter(p => p.active && qtds[p.id] > 0);
   if (!itens.length) {
     box.innerHTML = '<div class="empty-cart">Selecione seus sabores acima para continuar ☝️</div>';
     return;
   }
-  const total = itens.reduce((s,p) => s + p.preco * qtds[p.id], 0);
+  const subtotal   = itens.reduce((s,p) => s + p.preco * qtds[p.id], 0);
+  const entregaSel = document.querySelector('input[name="entrega"]:checked');
+  const frete      = entregaSel ? Number(entregaSel.dataset.frete) : 0;
+  const freteLabel = entregaSel ? entregaSel.dataset.label : '';
+  const total      = subtotal + frete;
   box.innerHTML = itens.map(p =>
     `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`
-  ).join('') + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`;
+  ).join('')
+  + `<hr class="summary-divider">`
+  + `<div class="summary-row summary-frete"><span>Entrega${freteLabel ? ' · ' + freteLabel : ''}</span><span>${frete > 0 ? 'R$ ' + frete + ',00' : 'Grátis'}</span></div>`
+  + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`;
 }
 
 function copyPix() {
@@ -376,30 +437,35 @@ function setErro(id, msg) {
 
 function enviarPedido(e) {
   e.preventDefault();
-  const nome     = document.getElementById('nome').value.trim();
-  const whatsapp = document.getElementById('whatsapp').value.replace(/\D/g,'');
-  const bairro   = document.getElementById('bairro').value.trim();
-  const itens    = produtos.filter(p => qtds[p.id] > 0);
+  const nome       = document.getElementById('nome').value.trim();
+  const whatsapp   = document.getElementById('whatsapp').value.replace(/\D/g,'');
+  const itens      = produtos.filter(p => p.active && qtds[p.id] > 0);
+  const entregaSel = document.querySelector('input[name="entrega"]:checked');
 
-  setErro('erro-nome',     nome            ? '' : 'Por favor, informe seu nome.');
+  setErro('erro-nome',     nome             ? '' : 'Por favor, informe seu nome.');
   setErro('erro-whatsapp', whatsapp.length >= 10 ? '' : 'Informe um WhatsApp válido com DDD.');
-  setErro('erro-itens',    itens.length    ? '' : 'Selecione pelo menos um cookie!');
+  setErro('erro-itens',    itens.length     ? '' : 'Selecione pelo menos um cookie!');
 
   if (!nome || whatsapp.length < 10 || !itens.length) {
     document.querySelector('.field-error:not(:empty)')?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
 
-  const total = itens.reduce((s,p) => s + p.preco * qtds[p.id], 0);
-  const lista = itens.map(p => `${qtds[p.id]}x ${p.nome}`).join('\n');
-  const msg   = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nTotal: R$ ${total},00\nBairro: ${bairro}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
+  const subtotal    = itens.reduce((s,p) => s + p.preco * qtds[p.id], 0);
+  const frete       = entregaSel ? Number(entregaSel.dataset.frete) : 0;
+  const entregaLabel = entregaSel ? entregaSel.dataset.label : 'Não informado';
+  const total       = subtotal + frete;
+
+  const lista    = itens.map(p => `${qtds[p.id]}x ${p.nome}`).join('\n');
+  const freteStr = frete > 0 ? `R$ ${frete},00` : 'Grátis';
+  const msg      = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${entregaLabel})\nTotal: R$ ${total},00\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
 
   const btn = document.getElementById('btnEnviar');
   btn.disabled = true;
   btn.textContent = 'Registrando pedido...';
 
   const payload = {
-    nome, whatsapp, bairro, total,
+    nome, whatsapp, entrega: entregaLabel, frete, subtotal, total,
     choc_branco: qtds['choc_branco'],
     choc_leite:  qtds['choc_leite'],
     dark:        qtds['dark'],
@@ -428,6 +494,7 @@ document.getElementById('whatsapp').addEventListener('input', function(e) {
 });
 
 renderGrid();
+document.querySelectorAll('input[name="entrega"]').forEach(r => r.addEventListener('change', renderSummary));
 </script>
 </body>
 </html>

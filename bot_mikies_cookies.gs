@@ -52,7 +52,7 @@ function _gerarRelatorio(data, chatId, messageId, automatico) {
     _postTelegram(cfg, `${titulo}\n\nNenhum pedido encontrado.`, chatId, messageId);
     return;
   }
-  const dados = sheet.getRange(4, 1, lastRow - 3, 14).getValues();
+  const dados = sheet.getRange(4, 1, lastRow - 3, 16).getValues();
   let totalGeral = 0;
   let qtdPedidos = 0;
   const sabores = {
@@ -66,9 +66,9 @@ function _gerarRelatorio(data, chatId, messageId, automatico) {
     const dataPedido = row[1];
     if (!(dataPedido instanceof Date)) continue;
     if (dataPedido < inicio || dataPedido > fim) continue;
-    if (row[13] === 'Cancelado') continue;
+    if (row[15] === 'Cancelado') continue;  // col 16: Status Pedido
     qtdPedidos++;
-    totalGeral              += Number(row[10]) || 0;
+    totalGeral              += Number(row[12]) || Number(row[10]) || 0;  // col 13 Total c/ Frete; fallback col 11
     sabores.choc_branco.qtd += Number(row[4])  || 0;
     sabores.choc_leite.qtd  += Number(row[5])  || 0;
     sabores.dark.qtd        += Number(row[6])  || 0;
@@ -139,7 +139,9 @@ function responderBot(message) {
       pedido.red_velvet  > 0 && `• Red Velvet: ${pedido.red_velvet}`,
       pedido.berry       > 0 && `• Berry: ${pedido.berry}`,
     ].filter(Boolean).join('\n');
-    const total      = Number(pedido.total || 0).toFixed(2).replace('.', ',');
+    const frete    = Number(pedido.frete    || 0).toFixed(2).replace('.', ',');
+    const subtotal = Number(pedido.subtotal || 0).toFixed(2).replace('.', ',');
+    const total    = Number(pedido.total    || 0).toFixed(2).replace('.', ',');
     const statusPix  = STATUS_PIX[pedido.statusPix]    || { emoji: '❓', descricao: pedido.statusPix };
     const statusProd = STATUS_PEDIDO[pedido.statusProd] || { emoji: '❓', descricao: pedido.statusProd };
     _postTelegram(cfg,
@@ -151,6 +153,8 @@ function responderBot(message) {
 🛒 Itens:
 ${itens}
 
+💵 Subtotal: R$ ${subtotal}
+🚀 Frete: R$ ${frete}
 💰 Total: R$ ${total}
 
 💳 Pagamento: ${statusPix.emoji} ${statusPix.descricao}
@@ -185,7 +189,7 @@ function onEditInstalavel(e) {
   if (sheet.getName() !== 'Pedidos') return;
   const col = e.range.getColumn();
   const row = e.range.getRow();
-  if (row < 4 || (col !== 13 && col !== 14)) return;
+  if (row < 4 || (col !== 15 && col !== 16)) return;
   const novoValor = e.value;
   if (!novoValor || novoValor.trim() === '') return;
   const numeroPedido = sheet.getRange(row, 1).getValue();
@@ -257,17 +261,22 @@ function salvarPedido(data) {
       // cols 10-11: formula (nao tocar)
     ];
     sheet.getRange(newRow, 2, 1, 8).setValues([rowData]);
-    sheet.getRange(newRow, 12).setValue(Number(data.total) || 0);
-    sheet.getRange(newRow, 13).setValue('Aguardando');
-    sheet.getRange(newRow, 14).setValue('Pix ainda não confirmado');
+    sheet.getRange(newRow, 12).setValue(Number(data.frete)    || 0);  // Frete
+    sheet.getRange(newRow, 13).setValue(Number(data.total)    || 0);  // Total c/ Frete
+    // col 14 (Valor Confirmado) — deixar em branco; preenchimento manual apos confirmar pagamento
+    sheet.getRange(newRow, 15).setValue('Aguardando');
+    sheet.getRange(newRow, 16).setValue('Pix ainda não confirmado');
     sheet.getRange(newRow, 2).setNumberFormat('DD/MM/YYYY');
     sheet.getRange(newRow, 12).setNumberFormat('"R$ "#.##0,00');
+    sheet.getRange(newRow, 13).setNumberFormat('"R$ "#.##0,00');
     sheet.getRange(newRow, 1).setValue(numeroPedido);
     enviarTelegram({
       numero:      numeroPedido,
       nome:        data.nome,
       whatsapp:    data.whatsapp,
-      bairro:      data.bairro,
+      entrega:     data.entrega,
+      frete:       data.frete,
+      subtotal:    data.subtotal,
       total:       data.total,
       choc_branco: data.choc_branco,
       choc_leite:  data.choc_leite,
@@ -294,18 +303,23 @@ function enviarTelegram(pedido) {
     pedido.red_velvet  > 0 && `• Red Velvet: ${pedido.red_velvet}`,
     pedido.berry       > 0 && `• Berry: ${pedido.berry}`,
   ].filter(Boolean).join('\n');
-  const total = Number(pedido.total || 0).toFixed(2).replace('.', ',');
+  const frete    = Number(pedido.frete    || 0).toFixed(2).replace('.', ',');
+  const subtotal = Number(pedido.subtotal || 0).toFixed(2).replace('.', ',');
+  const total    = Number(pedido.total    || 0).toFixed(2).replace('.', ',');
+  const entrega  = pedido.entrega || 'Não informado';
   _postTelegram(cfg,
 `🍪 NOVO PEDIDO NO SITE
 
 🆔 Pedido #${pedido.numero}
 👤 ${pedido.nome}
 📞 ${pedido.whatsapp}
-📍 ${pedido.bairro}
 
 🛒 Itens:
 ${itens}
 
+🚚 Entrega: ${entrega}
+💵 Subtotal: R$ ${subtotal}
+🚀 Frete: R$ ${frete}
 💰 Total: R$ ${total}
 
 ⚠️ Aguardando contato via WhatsApp.`
@@ -315,7 +329,7 @@ ${itens}
 function buscarPedido(sheet, numero) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 4) return null;
-  const dados = sheet.getRange(4, 1, lastRow - 3, 14).getValues();
+  const dados = sheet.getRange(4, 1, lastRow - 3, 16).getValues();
   for (const row of dados) {
     if (row[0] === numero) {
       return {
@@ -326,9 +340,11 @@ function buscarPedido(sheet, numero) {
         dark:        row[6],
         red_velvet:  row[7],
         berry:       row[8],
-        total:       row[10],
-        statusPix:   row[12],
-        statusProd:  row[13],
+        subtotal:    row[10],  // col 11: Total Produtos (formula)
+        frete:       row[11],  // col 12: Frete
+        total:       row[12],  // col 13: Total c/ Frete
+        statusPix:   row[14],  // col 15: Status Pix
+        statusProd:  row[15],  // col 16: Status Pedido
       };
     }
   }
@@ -368,14 +384,14 @@ function verificarPedidosParados() {
   const lastRow = sheet.getLastRow();
   if (lastRow < 4) return;
   const agora  = new Date();
-  const dados  = sheet.getRange(4, 1, lastRow - 3, 14).getValues();
+  const dados  = sheet.getRange(4, 1, lastRow - 3, 16).getValues();
   const alertas = [];
   for (const row of dados) {
     const numeroPedido = row[0];
     const nomeCliente  = row[2];
     const dataPedido   = row[1];
-    const statusPix    = row[12];
-    const statusProd   = row[13];
+    const statusPix    = row[14];  // col 15
+    const statusProd   = row[15];  // col 16
     if (!numeroPedido || !nomeCliente) continue;
     if (statusProd === 'Entregue' || statusProd === 'Cancelado' || statusPix === 'Cancelado') continue;
     const statusEmAlerta = [];
@@ -408,6 +424,18 @@ function testeMonitoramento()   { verificarPedidosParados(); }
 function testePolling()         { buscarUpdates(); }
 
 // --- CHANGELOG ---
+//
+// [5.0.0] - 2026-05-27
+//   REQUER: inserir 2 colunas apos K na planilha (ver instrucoes de migracao).
+//   Nova estrutura de colunas:
+//     L (12): Frete  |  M (13): Total c/ Frete  |  N (14): Valor Confirmado
+//     O (15): Status Pix  |  P (16): Status Pedido  |  Q (17): Link WhatsApp
+//   - salvarPedido: grava frete (col 12) e total c/ frete (col 13); status em cols 15-16.
+//   - enviarTelegram: exibe entrega, frete, subtotal e total.
+//   - buscarPedido, _gerarRelatorio, verificarPedidosParados: leem ate col 16.
+//   - onEditInstalavel: dispara em cols 15-16 (Status Pix / Status Pedido).
+//   - _gerarRelatorio: usa Total c/ Frete (col 13) no faturamento; fallback col 11.
+//   - /consultarpedido: exibe subtotal, frete e total.
 //
 // [4.2.0] - 2026-05-27
 //   - salvarPedido: data.total forcado para Number() antes de setValue()
