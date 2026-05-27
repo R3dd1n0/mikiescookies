@@ -315,8 +315,8 @@
   <div class="pix-box" style="display:block; margin-bottom:1.5rem; text-align:left;">
     <div class="pix-label">Pagamento via Pix</div>
     <div class="pix-key">60458177377</div>
-    <div class="pix-note">Envie o comprovante pelo WhatsApp após confirmar o pedido.</div>
-    <button class="copy-btn" onclick="copyPix()">Copiar chave Pix</button>
+    <div class="pix-note">Toque no botão para abrir seu banco com o valor já preenchido. O código Pix é copiado automaticamente como alternativa.</div>
+    <button class="copy-btn" id="btnPagarPix" onclick="pagarViaPix()">Pagar via Pix →</button>
   </div>
 
   <a href="#" class="wa-btn" id="waLink" target="_blank">
@@ -337,6 +337,48 @@
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw__lfc4RMJwh-ruNyJcZO4C9QlCvuwXUebeA63zCl2tTA9_xZKjnCOQ2G9xe5OTNc/exec';
 const PIX_KEY   = '60458177377';
 const WA_NUMBER = '5585999226322';
+
+let pedidoTotal = 0;
+
+function _crc16(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+    crc &= 0xFFFF;
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+function gerarPixPayload(valor) {
+  const f = (id, v) => { const s = String(v); return id + String(s.length).padStart(2,'0') + s; };
+  const info = f('26', f('00','br.gov.bcb.pix') + f('01', PIX_KEY));
+  const base = f('00','01') + info + f('52','0000') + f('53','986')
+             + (valor > 0 ? f('54', valor.toFixed(2)) : '')
+             + f('58','BR') + f('59','Mikies Cookies') + f('60','Fortaleza')
+             + f('62', f('05','***')) + '6304';
+  return base + _crc16(base);
+}
+
+function pagarViaPix() {
+  const payload = gerarPixPayload(pedidoTotal);
+  const btn = document.getElementById('btnPagarPix');
+  // Copia o código copia e cola para o clipboard
+  const doCopy = navigator.clipboard
+    ? navigator.clipboard.writeText(payload)
+    : Promise.resolve((() => {
+        const el = document.createElement('textarea');
+        el.value = payload; document.body.appendChild(el); el.select();
+        document.execCommand('copy'); document.body.removeChild(el);
+      })());
+  doCopy.then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Código copiado!';
+    setTimeout(() => btn.textContent = orig, 2500);
+  });
+  // Tenta abrir o app do banco via esquema pix://
+  window.location.href = 'pix://' + payload;
+}
 
 const IMGS = {
   choc_branco: 'images/choc_branco.jpg',
@@ -481,6 +523,8 @@ function enviarPedido(e) {
   .catch(err => console.warn('Sheets:', err))
   .finally(() => {
     const freteStr = frete > 0 ? `R$ ${frete},00` : 'Grátis';
+    pedidoTotal = total;
+    document.getElementById('btnPagarPix').textContent = `Pagar R$ ${total},00 via Pix →`;
     document.getElementById('summaryConfirm').innerHTML =
       itens.map(p => `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`).join('')
       + `<hr class="summary-divider">`
