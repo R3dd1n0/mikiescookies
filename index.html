@@ -254,13 +254,6 @@
       <div class="empty-cart">Selecione seus sabores acima para continuar ☝️</div>
     </div>
 
-    <div class="pix-box" id="pixBox">
-      <div class="pix-label">Pagamento via Pix</div>
-      <div class="pix-key">60458177377</div>
-      <div class="pix-note">Após confirmar pelo WhatsApp, realize o pagamento e envie o comprovante.</div>
-      <button class="copy-btn" onclick="copyPix()">Copiar chave Pix</button>
-    </div>
-
     <form id="orderForm" onsubmit="enviarPedido(event)">
     <div class="form-group">
       <label for="nome">Seu nome</label>
@@ -315,7 +308,17 @@
 <div class="success-screen" id="successScreen">
   <div class="success-icon">🍪</div>
   <h2>Quase lá!</h2>
-  <p>Clique no botão abaixo para confirmar seu pedido pelo WhatsApp. Só após o envio da mensagem seu pedido estará confirmado!</p>
+  <p>Confirme pelo WhatsApp para finalizar. Após a confirmação, realize o pagamento via Pix e envie o comprovante.</p>
+
+  <div class="summary-box" id="summaryConfirm" style="text-align:left; margin-bottom:1.25rem;"></div>
+
+  <div class="pix-box" style="display:block; margin-bottom:1.5rem; text-align:left;">
+    <div class="pix-label">Pagamento via Pix</div>
+    <div class="pix-key">60458177377</div>
+    <div class="pix-note">Envie o comprovante pelo WhatsApp após confirmar o pedido.</div>
+    <button class="copy-btn" onclick="copyPix()">Copiar chave Pix</button>
+  </div>
+
   <a href="#" class="wa-btn" id="waLink" target="_blank">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.536 5.848L.057 23.57l5.86-1.538A11.936 11.936 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.6-.5-5.105-1.375l-.366-.217-3.478.913.928-3.39-.238-.384A9.952 9.952 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
     Abrir WhatsApp
@@ -477,7 +480,12 @@ function enviarPedido(e) {
   fetch(url, { method:'GET', mode:'no-cors' })
   .catch(err => console.warn('Sheets:', err))
   .finally(() => {
-    document.getElementById('pixBox').classList.add('visible');
+    const freteStr = frete > 0 ? `R$ ${frete},00` : 'Grátis';
+    document.getElementById('summaryConfirm').innerHTML =
+      itens.map(p => `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`).join('')
+      + `<hr class="summary-divider">`
+      + `<div class="summary-row summary-frete"><span>Entrega · ${entregaLabel}</span><span>${freteStr}</span></div>`
+      + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`;
     document.getElementById('waLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
     document.getElementById('formSection').style.display = 'none';
     document.getElementById('successScreen').classList.add('visible');
