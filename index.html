@@ -196,6 +196,25 @@
   .btn-primary:hover { background:var(--bordo-mid); transform:translateY(-1px); }
   .btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
 
+  /* CAMPOS ESPECIAIS */
+  .form-select {
+    width:100%; padding:12px 14px; border:1.5px solid rgba(107,15,42,0.18);
+    border-radius:10px; background:var(--cream); font-family:'DM Sans',sans-serif;
+    font-size:15px; color:var(--dark-txt); outline:none; transition:border-color 0.2s;
+    cursor:pointer; appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B0F2A' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center; padding-right:38px;
+  }
+  .form-select:focus { border-color:var(--caramel); }
+  .form-textarea {
+    width:100%; padding:12px 14px; border:1.5px solid rgba(107,15,42,0.18);
+    border-radius:10px; background:var(--cream); font-family:'DM Sans',sans-serif;
+    font-size:15px; color:var(--dark-txt); outline:none; transition:border-color 0.2s;
+    resize:none; line-height:1.5;
+  }
+  .form-textarea:focus { border-color:var(--caramel); }
+  .msg-counter { display:block; text-align:right; font-size:11px; color:var(--light-txt); margin-top:3px; }
+
   /* SUCESSO */
   .success-screen { display:none; text-align:center; padding:4rem 1.5rem; max-width:500px; margin:0 auto; }
   .success-screen.visible { display:block; }
@@ -297,6 +316,24 @@
         </div>
       </div>
     </div>
+    <div class="form-group" style="margin-top:1.25rem;">
+      <label for="ocasiao">Qual é a ocasião? 🎊</label>
+      <select id="ocasiao" class="form-select">
+        <option value="Sem motivo especial">🍪 Sem motivo especial</option>
+        <option value="Aniversário">🎂 Aniversário</option>
+        <option value="Presentinho">🎁 Presentinho</option>
+        <option value="Dia dos Namorados">💕 Dia dos Namorados</option>
+        <option value="Formatura">🎓 Formatura</option>
+        <option value="Outro">🎊 Outro</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="mensagemCartao">Mensagem para o cartão <span class="form-note" style="display:inline">(opcional · até 80 caracteres)</span></label>
+      <textarea id="mensagemCartao" class="form-textarea" maxlength="80" placeholder="Ex: Feliz aniversário, te amo! 💛" rows="2"></textarea>
+      <span class="msg-counter"><span id="msgCount">0</span>/80</span>
+    </div>
+
     <span class="field-error" id="erro-itens"></span>
     <button type="submit" class="btn-primary" id="btnEnviar">
       Fazer pedido → confirmar pelo WhatsApp 🍪
@@ -482,10 +519,12 @@ function setErro(id, msg) {
 
 function enviarPedido(e) {
   e.preventDefault();
-  const nome       = document.getElementById('nome').value.trim();
-  const whatsapp   = document.getElementById('whatsapp').value.replace(/\D/g,'');
-  const itens      = produtos.filter(p => p.active && qtds[p.id] > 0);
-  const entregaSel = document.querySelector('input[name="entrega"]:checked');
+  const nome          = document.getElementById('nome').value.trim();
+  const whatsapp      = document.getElementById('whatsapp').value.replace(/\D/g,'');
+  const itens         = produtos.filter(p => p.active && qtds[p.id] > 0);
+  const entregaSel    = document.querySelector('input[name="entrega"]:checked');
+  const ocasiao       = document.getElementById('ocasiao').value;
+  const mensagemCartao = document.getElementById('mensagemCartao').value.trim();
 
   setErro('erro-nome',     nome             ? '' : 'Por favor, informe seu nome.');
   setErro('erro-whatsapp', whatsapp.length >= 10 ? '' : 'Informe um WhatsApp válido com DDD.');
@@ -496,14 +535,16 @@ function enviarPedido(e) {
     return;
   }
 
-  const subtotal    = itens.reduce((s,p) => s + p.preco * qtds[p.id], 0);
-  const frete       = entregaSel ? Number(entregaSel.dataset.frete) : 0;
+  const subtotal     = itens.reduce((s,p) => s + p.preco * qtds[p.id], 0);
+  const frete        = entregaSel ? Number(entregaSel.dataset.frete) : 0;
   const entregaLabel = entregaSel ? entregaSel.dataset.label : 'Não informado';
-  const total       = subtotal + frete;
+  const total        = subtotal + frete;
+  const freteStr     = frete > 0 ? `R$ ${frete},00` : 'Grátis';
 
-  const lista    = itens.map(p => `${qtds[p.id]}x ${p.nome}`).join('\n');
-  const freteStr = frete > 0 ? `R$ ${frete},00` : 'Grátis';
-  const msg      = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${entregaLabel})\nTotal: R$ ${total},00\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
+  const lista         = itens.map(p => `${qtds[p.id]}x ${p.nome}`).join('\n');
+  const ocasiaoExtra  = ocasiao !== 'Sem motivo especial' ? `\n\n🎊 Ocasião: ${ocasiao}` : '';
+  const cartaoExtra   = mensagemCartao ? `\n✉️ Cartão: "${mensagemCartao}"` : '';
+  const msg = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${entregaLabel})\nTotal: R$ ${total},00${ocasiaoExtra}${cartaoExtra}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
 
   const btn = document.getElementById('btnEnviar');
   btn.disabled = true;
@@ -511,6 +552,7 @@ function enviarPedido(e) {
 
   const payload = {
     nome, whatsapp, entrega: entregaLabel, frete, subtotal, total,
+    ocasiao, mensagemCartao,
     choc_branco: qtds['choc_branco'],
     choc_leite:  qtds['choc_leite'],
     dark:        qtds['dark'],
@@ -525,11 +567,16 @@ function enviarPedido(e) {
   // Exibe tela de sucesso imediatamente, sem esperar o GAS
   pedidoTotal = total;
   document.getElementById('btnPagarPix').textContent = `Pagar R$ ${total},00 via Pix →`;
+  const ocasiaoHtml = ocasiao !== 'Sem motivo especial'
+    ? `<div class="summary-row" style="margin-top:6px;"><span>🎊 Ocasião</span><span>${ocasiao}</span></div>` : '';
+  const cartaoHtml = mensagemCartao
+    ? `<div class="summary-row" style="font-style:italic; color:var(--caramel);"><span>✉️ Cartão</span><span>"${mensagemCartao}"</span></div>` : '';
   document.getElementById('summaryConfirm').innerHTML =
     itens.map(p => `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`).join('')
     + `<hr class="summary-divider">`
     + `<div class="summary-row summary-frete"><span>Entrega · ${entregaLabel}</span><span>${freteStr}</span></div>`
-    + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`;
+    + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`
+    + ocasiaoHtml + cartaoHtml;
   document.getElementById('waLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
   document.getElementById('formSection').style.display = 'none';
   document.getElementById('successScreen').classList.add('visible');
@@ -546,6 +593,9 @@ document.getElementById('whatsapp').addEventListener('input', function(e) {
 
 renderGrid();
 document.querySelectorAll('input[name="entrega"]').forEach(r => r.addEventListener('change', renderSummary));
+document.getElementById('mensagemCartao').addEventListener('input', function() {
+  document.getElementById('msgCount').textContent = this.value.length;
+});
 </script>
 </body>
 </html>
