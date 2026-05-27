@@ -12,6 +12,7 @@
 <meta name="theme-color" content="#6B0F2A">
 <title>Mikies Cookies — Peça os seus</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
   :root {
     --bordo:      #6B0F2A;
@@ -158,19 +159,51 @@
   /* Badge produtos especiais */
   .card-badge { display:inline-block; background:var(--bordo); color:#fff; font-size:9.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; padding:2px 8px; border-radius:20px; margin-bottom:5px; }
 
+  /* QUANDO */
+  .quando-section { margin-bottom:1.25rem; }
+  .quando-section > label { display:block; font-size:13px; font-weight:500; color:var(--mid-txt); margin-bottom:8px; }
+  .quando-grid { display:flex; flex-direction:column; gap:8px; }
+  .quando-card { position:relative; }
+  .quando-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
+  .quando-card label {
+    display:flex; align-items:center; gap:12px;
+    padding:11px 14px; border:1.5px solid rgba(107,15,42,0.18);
+    border-radius:12px; cursor:pointer; background:var(--bege-lt);
+    transition:all 0.2s ease;
+  }
+  .quando-card label:hover { border-color:var(--caramel); }
+  .quando-card input:checked + label { border-color:var(--bordo); background:var(--cream); box-shadow:0 0 0 2px rgba(107,15,42,0.12); }
+  .quando-icon { font-size:1.25rem; }
+  .quando-nome { font-size:14px; font-weight:500; color:var(--bordo); flex:1; }
+  .quando-sub { font-size:11.5px; color:var(--light-txt); }
+  .quando-date {
+    width:100%; padding:11px 14px; border:1.5px solid rgba(107,15,42,0.18);
+    border-radius:12px; background:var(--cream); font-family:'DM Sans',sans-serif;
+    font-size:14px; color:var(--dark-txt); outline:none; transition:border-color 0.2s;
+    margin-top:8px; display:none;
+  }
+  .quando-date:focus { border-color:var(--caramel); }
+  .fora-horario-aviso {
+    background:rgba(200,129,58,0.12); border:1px solid rgba(200,129,58,0.3);
+    border-radius:10px; padding:10px 14px; font-size:12.5px; color:var(--caramel);
+    line-height:1.5; margin-top:6px; display:none;
+  }
+
   /* PIX — oculto até clicar em fazer pedido */
   .pix-box {
     background:linear-gradient(135deg,var(--bordo) 0%,var(--bordo-mid) 100%);
     border-radius:14px; padding:1.25rem 1.5rem; margin-bottom:1.5rem; display:none;
   }
   .pix-box.visible { display:block; }
-  .pix-label { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--caramel-lt); margin-bottom:6px; font-weight:500; }
-  .pix-key { font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:600; color:#fff; }
-  .pix-note { font-size:12px; color:rgba(245,230,200,0.55); margin-top:6px; line-height:1.5; }
+  .pix-label { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--caramel-lt); margin-bottom:10px; font-weight:500; }
+  .pix-qr-wrap { display:flex; justify-content:center; margin:8px 0 12px; }
+  .pix-qr-wrap svg, .pix-qr-wrap table { border-radius:10px; background:#fff; padding:10px; max-width:180px; }
+  .pix-qr-amount { text-align:center; font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:600; color:#fff; margin-bottom:4px; }
+  .pix-note { font-size:12px; color:rgba(245,230,200,0.55); margin-bottom:10px; line-height:1.5; text-align:center; }
   .copy-btn {
-    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22);
+    display:block; width:100%; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22);
     color:var(--bege); font-family:'DM Sans',sans-serif; font-size:12px;
-    padding:7px 16px; border-radius:8px; cursor:pointer; margin-top:12px; transition:background 0.15s;
+    padding:9px 16px; border-radius:8px; cursor:pointer; transition:background 0.15s; text-align:center;
   }
   .copy-btn:hover { background:rgba(255,255,255,0.22); }
 
@@ -187,14 +220,6 @@
   .form-note { font-size:11.5px; color:var(--light-txt); margin-top:4px; }
   .field-error { display:block; font-size:12px; color:#C0392B; margin-top:4px; min-height:1em; }
   .form-group input.invalid { border-color:#C0392B; }
-
-  .btn-primary {
-    width:100%; padding:15px; background:var(--bordo); color:var(--bege-lt);
-    border:none; border-radius:12px; font-family:'Playfair Display',serif;
-    font-size:1.05rem; font-weight:600; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px;
-  }
-  .btn-primary:hover { background:var(--bordo-mid); transform:translateY(-1px); }
-  .btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
 
   /* CAMPOS ESPECIAIS */
   .form-select {
@@ -214,6 +239,14 @@
   }
   .form-textarea:focus { border-color:var(--caramel); }
   .msg-counter { display:block; text-align:right; font-size:11px; color:var(--light-txt); margin-top:3px; }
+
+  .btn-primary {
+    width:100%; padding:15px; background:var(--bordo); color:var(--bege-lt);
+    border:none; border-radius:12px; font-family:'Playfair Display',serif;
+    font-size:1.05rem; font-weight:600; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px;
+  }
+  .btn-primary:hover { background:var(--bordo-mid); transform:translateY(-1px); }
+  .btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
 
   /* SUCESSO */
   .success-screen { display:none; text-align:center; padding:4rem 1.5rem; max-width:500px; margin:0 auto; }
@@ -316,6 +349,16 @@
         </div>
       </div>
     </div>
+
+    <div class="quando-section" style="margin-top:1.25rem;">
+      <label>Quando você precisa? ⏰</label>
+      <div class="quando-grid" id="quandoGrid"></div>
+      <input type="date" id="quandoData" class="quando-date" min="">
+      <div class="fora-horario-aviso" id="foraHorarioAviso">
+        🌙 Pedido recebido fora do horário — nossa equipe entra em contato no próximo dia útil.
+      </div>
+    </div>
+
     <div class="form-group" style="margin-top:1.25rem;">
       <label for="ocasiao">Qual é a ocasião? 🎊</label>
       <select id="ocasiao" class="form-select">
@@ -345,15 +388,16 @@
 <div class="success-screen" id="successScreen">
   <div class="success-icon">🍪</div>
   <h2>Quase lá!</h2>
-  <p>Confirme pelo WhatsApp para finalizar. Após a confirmação, realize o pagamento via Pix e envie o comprovante.</p>
+  <p id="successMsg">Confirme pelo WhatsApp para finalizar. Após a confirmação, realize o pagamento via Pix e envie o comprovante.</p>
 
   <div class="summary-box" id="summaryConfirm" style="text-align:left; margin-bottom:1.25rem;"></div>
 
-  <div class="pix-box" style="display:block; margin-bottom:1.5rem; text-align:left;">
+  <div class="pix-box" style="display:block; margin-bottom:1.5rem;">
     <div class="pix-label">Pagamento via Pix</div>
-    <div class="pix-key">60458177377</div>
-    <div class="pix-note">Toque no botão para abrir seu banco com o valor já preenchido. O código Pix é copiado automaticamente como alternativa.</div>
-    <button class="copy-btn" id="btnPagarPix" onclick="pagarViaPix()">Pagar via Pix →</button>
+    <div class="pix-qr-wrap" id="pixQrWrap"></div>
+    <div class="pix-qr-amount" id="pixQrAmount"></div>
+    <div class="pix-note">Aponte a câmera do app do seu banco para o QR — o valor já vem preenchido.</div>
+    <button class="copy-btn" id="btnCopiarCodigo" onclick="copiarCodigoPix()">Copiar código Pix →</button>
   </div>
 
   <a href="#" class="wa-btn" id="waLink" target="_blank">
@@ -376,7 +420,84 @@ const PIX_KEY   = '60458177377';
 const WA_NUMBER = '5585999226322';
 
 let pedidoTotal = 0;
+let _pixPayloadAtual = '';
 
+// --- Horário Fortaleza (UTC-3, sem DST) ---
+function _getHoraFtz() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const ft  = new Date(utc - 3 * 3600000);
+  return { h: ft.getHours(), dia: ft.getDay(), ft };
+}
+
+function _isForaHorario() {
+  const { h, dia } = _getHoraFtz();
+  return h < 8 || h >= 22 || dia === 0;
+}
+
+function _proximoDiaUtil() {
+  const { ft, dia } = _getHoraFtz();
+  const d = new Date(ft);
+  d.setDate(d.getDate() + 1);
+  while ([0].includes(d.getDay())) d.setDate(d.getDate() + 1); // pula domingo
+  return d.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'2-digit' });
+}
+
+// --- Slots de entrega ---
+function _getSlots() {
+  const { h, dia } = _getHoraFtz();
+  const slots = [];
+  const dentroHorario = h >= 8 && h < 22 && dia !== 0;
+  if (dentroHorario) {
+    if (h < 20) slots.push({ value:'agora',      icon:'⚡', nome:'O quanto antes',     sub:'Entrega na próxima hora ou duas' });
+    if (h < 11) slots.push({ value:'hoje-tarde', icon:'🌤', nome:'Hoje — tarde',        sub:'13h às 17h' });
+    if (h < 16) slots.push({ value:'hoje-noite', icon:'🌙', nome:'Hoje — noite',        sub:'18h às 21h' });
+  }
+  slots.push({ value:'agendar', icon:'📅', nome:'Agendar outra data', sub:'Escolha a data' });
+  return slots;
+}
+
+function renderSlots() {
+  const slots  = _getSlots();
+  const grid   = document.getElementById('quandoGrid');
+  const aviso  = document.getElementById('foraHorarioAviso');
+  const fora   = _isForaHorario();
+  aviso.style.display = fora ? 'block' : 'none';
+  grid.innerHTML = slots.map((s, i) => `
+    <div class="quando-card">
+      <input type="radio" name="quando" id="quando-${s.value}" value="${s.value}" ${i === 0 ? 'checked' : ''}>
+      <label for="quando-${s.value}">
+        <span class="quando-icon">${s.icon}</span>
+        <span class="quando-nome">${s.nome}</span>
+        <span class="quando-sub">${s.sub}</span>
+      </label>
+    </div>
+  `).join('');
+  // Data mínima = amanhã
+  const ftAmanha = new Date(_getHoraFtz().ft);
+  ftAmanha.setDate(ftAmanha.getDate() + 1);
+  const min = ftAmanha.toISOString().split('T')[0];
+  document.getElementById('quandoData').min = min;
+  document.getElementById('quandoData').value = min;
+  grid.querySelectorAll('input[name="quando"]').forEach(r => r.addEventListener('change', () => {
+    document.getElementById('quandoData').style.display = r.value === 'agendar' ? 'block' : 'none';
+  }));
+}
+
+function _getQuandoLabel() {
+  const sel = document.querySelector('input[name="quando"]:checked');
+  if (!sel) return 'Não informado';
+  const map = { agora:'O quanto antes', 'hoje-tarde':'Hoje · tarde (13h–17h)', 'hoje-noite':'Hoje · noite (18h–21h)' };
+  if (sel.value === 'agendar') {
+    const data = document.getElementById('quandoData').value;
+    if (!data) return 'A agendar';
+    const [y,m,d] = data.split('-');
+    return `Agendado · ${d}/${m}/${y}`;
+  }
+  return map[sel.value] || 'Não informado';
+}
+
+// --- PIX EMV ---
 function _crc16(str) {
   let crc = 0xFFFF;
   for (let i = 0; i < str.length; i++) {
@@ -397,10 +518,24 @@ function gerarPixPayload(valor) {
   return base + _crc16(base);
 }
 
-function pagarViaPix() {
-  const payload = gerarPixPayload(pedidoTotal);
-  const btn = document.getElementById('btnPagarPix');
-  // Copia o código copia e cola para o clipboard
+function gerarQRPix(valor) {
+  const payload = gerarPixPayload(valor);
+  _pixPayloadAtual = payload;
+  const wrap = document.getElementById('pixQrWrap');
+  try {
+    const qr = qrcode(0, 'M');
+    qr.addData(payload);
+    qr.make();
+    wrap.innerHTML = qr.createSvgTag(5, 0);
+  } catch(e) {
+    wrap.innerHTML = '';
+  }
+  document.getElementById('pixQrAmount').textContent = `R$ ${valor.toFixed(2).replace('.',',')}`;
+}
+
+function copiarCodigoPix() {
+  const payload = _pixPayloadAtual || gerarPixPayload(pedidoTotal);
+  const btn = document.getElementById('btnCopiarCodigo');
   const doCopy = navigator.clipboard
     ? navigator.clipboard.writeText(payload)
     : Promise.resolve((() => {
@@ -409,14 +544,12 @@ function pagarViaPix() {
         document.execCommand('copy'); document.body.removeChild(el);
       })());
   doCopy.then(() => {
-    const orig = btn.textContent;
     btn.textContent = '✓ Código copiado!';
-    setTimeout(() => btn.textContent = orig, 2500);
+    setTimeout(() => btn.textContent = 'Copiar código Pix →', 2500);
   });
-  // Tenta abrir o app do banco via esquema pix://
-  window.location.href = 'pix://' + payload;
 }
 
+// --- Cardápio ---
 const IMGS = {
   choc_branco: 'images/choc_branco.jpg',
   choc_leite:  'images/choc_leite.jpg',
@@ -488,26 +621,6 @@ function renderSummary() {
   + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`;
 }
 
-function copyPix() {
-  function showCopied() {
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = '✓ Copiado!';
-    setTimeout(() => btn.textContent = 'Copiar chave Pix', 2000);
-  }
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(PIX_KEY).then(showCopied);
-  } else {
-    const el = document.createElement('textarea');
-    el.value = PIX_KEY;
-    el.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
-    document.body.appendChild(el);
-    el.focus(); el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-    showCopied();
-  }
-}
-
 function setErro(id, msg) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -519,12 +632,13 @@ function setErro(id, msg) {
 
 function enviarPedido(e) {
   e.preventDefault();
-  const nome          = document.getElementById('nome').value.trim();
-  const whatsapp      = document.getElementById('whatsapp').value.replace(/\D/g,'');
-  const itens         = produtos.filter(p => p.active && qtds[p.id] > 0);
-  const entregaSel    = document.querySelector('input[name="entrega"]:checked');
-  const ocasiao       = document.getElementById('ocasiao').value;
+  const nome           = document.getElementById('nome').value.trim();
+  const whatsapp       = document.getElementById('whatsapp').value.replace(/\D/g,'');
+  const itens          = produtos.filter(p => p.active && qtds[p.id] > 0);
+  const entregaSel     = document.querySelector('input[name="entrega"]:checked');
+  const ocasiao        = document.getElementById('ocasiao').value;
   const mensagemCartao = document.getElementById('mensagemCartao').value.trim();
+  const quando         = _getQuandoLabel();
 
   setErro('erro-nome',     nome             ? '' : 'Por favor, informe seu nome.');
   setErro('erro-whatsapp', whatsapp.length >= 10 ? '' : 'Informe um WhatsApp válido com DDD.');
@@ -541,10 +655,10 @@ function enviarPedido(e) {
   const total        = subtotal + frete;
   const freteStr     = frete > 0 ? `R$ ${frete},00` : 'Grátis';
 
-  const lista         = itens.map(p => `${qtds[p.id]}x ${p.nome}`).join('\n');
-  const ocasiaoExtra  = ocasiao !== 'Sem motivo especial' ? `\n\n🎊 Ocasião: ${ocasiao}` : '';
-  const cartaoExtra   = mensagemCartao ? `\n✉️ Cartão: "${mensagemCartao}"` : '';
-  const msg = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${entregaLabel})\nTotal: R$ ${total},00${ocasiaoExtra}${cartaoExtra}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
+  const lista        = itens.map(p => `${qtds[p.id]}x ${p.nome}`).join('\n');
+  const ocasiaoExtra = ocasiao !== 'Sem motivo especial' ? `\n\n🎊 Ocasião: ${ocasiao}` : '';
+  const cartaoExtra  = mensagemCartao ? `\n✉️ Cartão: "${mensagemCartao}"` : '';
+  const msg = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${entregaLabel})\nTotal: R$ ${total},00\nEntrega: ${quando}${ocasiaoExtra}${cartaoExtra}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
 
   const btn = document.getElementById('btnEnviar');
   btn.disabled = true;
@@ -552,7 +666,7 @@ function enviarPedido(e) {
 
   const payload = {
     nome, whatsapp, entrega: entregaLabel, frete, subtotal, total,
-    ocasiao, mensagemCartao,
+    quando, ocasiao, mensagemCartao,
     choc_branco: qtds['choc_branco'],
     choc_leite:  qtds['choc_leite'],
     dark:        qtds['dark'],
@@ -560,24 +674,35 @@ function enviarPedido(e) {
     berry:       qtds['berry'],
   };
 
-  // Dispara para o GAS sem aguardar — processamento ocorre em background
+  // Dispara para o GAS sem aguardar
   const url = SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
   fetch(url, { method:'GET', mode:'no-cors' }).catch(err => console.warn('Sheets:', err));
 
-  // Exibe tela de sucesso imediatamente, sem esperar o GAS
+  // Tela de sucesso imediata
   pedidoTotal = total;
-  document.getElementById('btnPagarPix').textContent = `Pagar R$ ${total},00 via Pix →`;
+
+  // Mensagem adaptada ao horário
+  const fora = _isForaHorario();
+  document.getElementById('successMsg').textContent = fora
+    ? `Pedido recebido! Nossa equipe entra em contato no próximo dia útil (${_proximoDiaUtil()}). Enquanto isso, o pagamento via Pix já pode ser feito.`
+    : 'Confirme pelo WhatsApp para finalizar. Após a confirmação, realize o pagamento via Pix e envie o comprovante.';
+
   const ocasiaoHtml = ocasiao !== 'Sem motivo especial'
     ? `<div class="summary-row" style="margin-top:6px;"><span>🎊 Ocasião</span><span>${ocasiao}</span></div>` : '';
   const cartaoHtml = mensagemCartao
     ? `<div class="summary-row" style="font-style:italic; color:var(--caramel);"><span>✉️ Cartão</span><span>"${mensagemCartao}"</span></div>` : '';
+  const quandoHtml = `<div class="summary-row" style="margin-top:6px;"><span>⏰ Entrega</span><span>${quando}</span></div>`;
+
   document.getElementById('summaryConfirm').innerHTML =
     itens.map(p => `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`).join('')
     + `<hr class="summary-divider">`
     + `<div class="summary-row summary-frete"><span>Entrega · ${entregaLabel}</span><span>${freteStr}</span></div>`
     + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`
-    + ocasiaoHtml + cartaoHtml;
+    + quandoHtml + ocasiaoHtml + cartaoHtml;
+
   document.getElementById('waLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  gerarQRPix(total);
+
   document.getElementById('formSection').style.display = 'none';
   document.getElementById('successScreen').classList.add('visible');
   document.getElementById('successScreen').scrollIntoView({behavior:'smooth', block:'center'});
@@ -592,6 +717,7 @@ document.getElementById('whatsapp').addEventListener('input', function(e) {
 });
 
 renderGrid();
+renderSlots();
 document.querySelectorAll('input[name="entrega"]').forEach(r => r.addEventListener('change', renderSummary));
 document.getElementById('mensagemCartao').addEventListener('input', function() {
   document.getElementById('msgCount').textContent = this.value.length;
