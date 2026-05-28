@@ -4,6 +4,19 @@ Todas as mudanças relevantes do projeto estão documentadas aqui.
 
 ---
 
+## [2.2.0] - 2026-05-28
+
+### Bot GAS (v1.1.0) — CRM de Clientes
+- Nova aba "Clientes" consolidada automaticamente às 6h (`consolidarClientes()`)
+- Identificador por telefone normalizado: remove +55, código de país, parênteses, espaços e traços
+- Normalização aplicada também em deduplicação (`_isDuplicado`) e contagem de pedidos anteriores
+- Campos calculados: pedidos, total gasto, ticket médio, primeiro/último pedido, sabor favorito, sabores detalhados, ocasiões usadas
+- Campos manuais preservados na consolidação: aniversário, Instagram, notas
+- Cabeçalho e formatação de datas/valores aplicados automaticamente na criação da aba
+- `criarTriggers()` atualizado com trigger diário às 6h para `consolidarClientes`
+
+---
+
 ## [2.1.0] - 2026-05-28
 
 ### Correções

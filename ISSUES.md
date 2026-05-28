@@ -24,7 +24,7 @@
 - [ ] **WhatsApp Business API**: Substituir links `wa.me` por mensagens via API oficial assim que o número for fixo e verificado. Permite templates aprovados, rastreamento e funil automatizado.
 - [ ] **Avaliação pós-entrega**: Google Form já previsto (`FORM_AVALIACAO_URL`). Criar formulário, salvar ID no PropertiesService e configurar template Slides de agradecimento com `{{form_url}}`.
 - [ ] **Página de status do pedido**: Consulta pública por número de pedido + WhatsApp, sem precisar abrir o Telegram.
-- [ ] **CRM básico de clientes**: Aba "Clientes" consolidando histórico por WhatsApp (total gasto, último pedido, sabores favoritos), alimentada automaticamente ao salvar pedido.
+- [x] **CRM básico de clientes**: Aba "Clientes" consolidada diariamente via `consolidarClientes()` — agnóstico de fonte (site, WA direto, manual).
 - [ ] **Imagens otimizadas**: Converter JPGs para WebP para melhorar performance mobile em 3G.
 
 ### Baixa prioridade

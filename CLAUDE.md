@@ -29,13 +29,33 @@ Usuário → index.html → GAS Web App → Google Sheets
 | J (10) | Qtd total | Fórmula |
 | K (11) | Total Produtos | Fórmula |
 | L (12) | Frete | GAS |
-| M (13) | Total c/ Frete | GAS |
+| M (13) | Total c/ Frete | Fórmula |
 | N (14) | Valor Confirmado | Manual |
 | O (15) | Status Pix | GAS / Manual |
 | P (16) | Status Pedido | GAS / Manual |
-| Q (17) | Link WhatsApp | Fórmula |
+| Q (17) | Ocasião | GAS |
+| R (18) | Mensagem Cartão | GAS |
+| S (19) | Quando (previsão) | GAS |
 
-> ⚠️ A migração das colunas L–Q ainda não foi aplicada à planilha (instruções pendentes para o final da sessão).
+## Planilha (Google Sheets — aba "Clientes")
+Criada e mantida automaticamente por `consolidarClientes()` (roda às 6h diariamente).
+Identificador: telefone normalizado (sem +55, sem formatação).
+
+| Col | Conteúdo | Quem preenche |
+|-----|----------|---------------|
+| A | Telefone | GAS (chave) |
+| B | Nome | GAS (mais recente) |
+| C | Pedidos | GAS (contagem) |
+| D | Total Gasto | GAS (R$) |
+| E | Ticket Médio | GAS (R$) |
+| F | Primeiro Pedido | GAS (data) |
+| G | Último Pedido | GAS (data) |
+| H | Sabor Favorito | GAS |
+| I | Sabores | GAS (detalhado) |
+| J | Ocasiões Usadas | GAS |
+| K | Aniversário | **Manual** |
+| L | Instagram | **Manual** |
+| M | Notas | **Manual** |
 
 ## Produtos
 Controlados pelo array `produtos[]` em `index.html`.
