@@ -309,7 +309,8 @@
     <form id="orderForm" onsubmit="enviarPedido(event)">
     <div class="form-group">
       <label for="nome">Seu nome</label>
-      <input type="text" id="nome" placeholder="Como você se chama?" autocomplete="name">
+      <input type="text" id="nome" placeholder="Como você se chama?" autocomplete="name" maxlength="60">
+      <span class="msg-counter" id="nomeCounterWrap" style="display:none;"><span id="nomeCount">0</span>/60</span>
       <span class="field-error" id="erro-nome"></span>
     </div>
     <div class="form-group">
@@ -733,6 +734,12 @@ renderSlots();
 document.querySelectorAll('input[name="entrega"]').forEach(r => r.addEventListener('change', renderSummary));
 document.getElementById('mensagemCartao').addEventListener('input', function() {
   document.getElementById('msgCount').textContent = this.value.length;
+});
+document.getElementById('nome').addEventListener('input', function() {
+  const len = this.value.length;
+  const wrap = document.getElementById('nomeCounterWrap');
+  wrap.style.display = len >= 40 ? 'block' : 'none';
+  document.getElementById('nomeCount').textContent = len;
 });
 </script>
 </body>
