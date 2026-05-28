@@ -702,7 +702,7 @@ function enviarPedido(e) {
   const ocasiaoHtml = ocasiao !== 'Sem motivo especial'
     ? `<div class="summary-row" style="margin-top:6px;"><span>🎊 Ocasião</span><span>${ocasiao}</span></div>` : '';
   const cartaoHtml = mensagemCartao
-    ? `<div class="summary-row" style="font-style:italic; color:var(--caramel);"><span>✉️ Cartão</span><span>"${mensagemCartao}"</span></div>` : '';
+    ? `<div class="summary-row" style="flex-direction:column; align-items:flex-start; gap:2px; color:var(--caramel);"><span style="font-style:normal; color:var(--mid-txt);">✉️ Cartão</span><span style="font-style:italic;">"${mensagemCartao}"</span></div>` : '';
   const quandoHtml = `<div class="summary-row" style="margin-top:6px;"><span>⏰ ${modoLabel}</span><span>${quando}</span></div>`;
 
   document.getElementById('summaryConfirm').innerHTML =
