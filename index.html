@@ -196,8 +196,8 @@
   }
   .pix-box.visible { display:block; }
   .pix-label { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--caramel-lt); margin-bottom:10px; font-weight:500; }
-  .pix-qr-wrap { display:flex; justify-content:center; margin:8px 0 12px; }
-  .pix-qr-wrap svg, .pix-qr-wrap table { border-radius:10px; background:#fff; padding:10px; max-width:180px; }
+  .pix-qr-wrap { display:flex; justify-content:center; align-items:center; margin:8px 0 12px; }
+  .pix-qr-wrap svg { display:block; width:160px !important; height:160px !important; border-radius:10px; background:#fff; padding:8px; box-sizing:content-box; }
   .pix-qr-amount { text-align:center; font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:600; color:#fff; margin-bottom:4px; }
   .pix-note { font-size:12px; color:rgba(245,230,200,0.55); margin-bottom:10px; line-height:1.5; text-align:center; }
   .copy-btn {
@@ -482,6 +482,10 @@ function renderSlots() {
   grid.querySelectorAll('input[name="quando"]').forEach(r => r.addEventListener('change', () => {
     document.getElementById('quandoData').style.display = r.value === 'agendar' ? 'block' : 'none';
   }));
+  // Exibe o campo de data imediatamente se "agendar" já estiver pré-selecionado
+  const checkedInicial = grid.querySelector('input[name="quando"]:checked');
+  document.getElementById('quandoData').style.display =
+    (checkedInicial && checkedInicial.value === 'agendar') ? 'block' : 'none';
 }
 
 function _getQuandoLabel() {
@@ -526,7 +530,10 @@ function gerarQRPix(valor) {
     const qr = qrcode(0, 'M');
     qr.addData(payload);
     qr.make();
-    wrap.innerHTML = qr.createSvgTag(5, 0);
+    wrap.innerHTML = qr.createSvgTag(4, 0);
+    // Remove atributos de tamanho fixo — CSS controla via width/height !important
+    const svgEl = wrap.querySelector('svg');
+    if (svgEl) { svgEl.removeAttribute('width'); svgEl.removeAttribute('height'); }
   } catch(e) {
     wrap.innerHTML = '';
   }

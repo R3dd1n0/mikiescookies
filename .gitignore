@@ -1,5 +1,6 @@
 # Google Apps Script — gerenciado diretamente no script.google.com
 bot_mikies_cookies.gs
+bot_tests.gs
 
 # Instruções internas — não precisam ir ao repositório público
 instrucoes_planilha.md
