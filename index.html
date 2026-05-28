@@ -449,7 +449,7 @@ function _getSlots() {
   const slots = [];
   const dentroHorario = h >= 8 && h < 22 && dia !== 0;
   if (dentroHorario) {
-    if (h < 20) slots.push({ value:'agora',      icon:'⚡', nome:'O quanto antes',     sub:'Entrega na próxima hora ou duas' });
+    if (h < 20) slots.push({ value:'agora',      icon:'⚡', nome:'O quanto antes',     sub:'Em até 2h' });
     if (h < 11) slots.push({ value:'hoje-tarde', icon:'🌤', nome:'Hoje — tarde',        sub:'13h às 17h' });
     if (h < 16) slots.push({ value:'hoje-noite', icon:'🌙', nome:'Hoje — noite',        sub:'18h às 21h' });
   }
@@ -477,7 +477,11 @@ function renderSlots() {
   const ftAmanha = new Date(_getHoraFtz().ft);
   ftAmanha.setDate(ftAmanha.getDate() + 1);
   const min = ftAmanha.toISOString().split('T')[0];
-  document.getElementById('quandoData').min = min;
+  const ftMax = new Date(_getHoraFtz().ft);
+  ftMax.setDate(ftMax.getDate() + 21);
+  const max = ftMax.toISOString().split('T')[0];
+  document.getElementById('quandoData').min   = min;
+  document.getElementById('quandoData').max   = max;
   document.getElementById('quandoData').value = min;
   grid.querySelectorAll('input[name="quando"]').forEach(r => r.addEventListener('change', () => {
     document.getElementById('quandoData').style.display = r.value === 'agendar' ? 'block' : 'none';
@@ -624,7 +628,7 @@ function renderSummary() {
     `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`
   ).join('')
   + `<hr class="summary-divider">`
-  + `<div class="summary-row summary-frete"><span>Entrega${freteLabel ? ' · ' + freteLabel : ''}</span><span>${frete > 0 ? 'R$ ' + frete + ',00' : 'Grátis'}</span></div>`
+  + `<div class="summary-row summary-frete"><span>${freteLabel === 'Retirada' ? 'Retirada' : 'Entrega' + (freteLabel ? ' · ' + freteLabel : '')}</span><span>${frete > 0 ? 'R$ ' + frete + ',00' : 'Grátis'}</span></div>`
   + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`;
 }
 
@@ -662,10 +666,11 @@ function enviarPedido(e) {
   const total        = subtotal + frete;
   const freteStr     = frete > 0 ? `R$ ${frete},00` : 'Grátis';
 
+  const modoLabel    = entregaSel?.value === 'retirada' ? 'Retirada' : 'Entrega';
   const lista        = itens.map(p => `${qtds[p.id]}x ${p.nome}`).join('\n');
-  const ocasiaoExtra = ocasiao !== 'Sem motivo especial' ? `\n\n🎊 Ocasião: ${ocasiao}` : '';
-  const cartaoExtra  = mensagemCartao ? `\n✉️ Cartão: "${mensagemCartao}"` : '';
-  const msg = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${entregaLabel})\nTotal: R$ ${total},00\nEntrega: ${quando}${ocasiaoExtra}${cartaoExtra}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
+  const ocasiaoExtra = ocasiao !== 'Sem motivo especial' ? `\n\nOcasião: ${ocasiao}` : '';
+  const cartaoExtra  = mensagemCartao ? `\nCartão: "${mensagemCartao}"` : '';
+  const msg = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${entregaLabel})\nTotal: R$ ${total},00\n${modoLabel}: ${quando}${ocasiaoExtra}${cartaoExtra}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
 
   const btn = document.getElementById('btnEnviar');
   btn.disabled = true;
@@ -698,12 +703,12 @@ function enviarPedido(e) {
     ? `<div class="summary-row" style="margin-top:6px;"><span>🎊 Ocasião</span><span>${ocasiao}</span></div>` : '';
   const cartaoHtml = mensagemCartao
     ? `<div class="summary-row" style="font-style:italic; color:var(--caramel);"><span>✉️ Cartão</span><span>"${mensagemCartao}"</span></div>` : '';
-  const quandoHtml = `<div class="summary-row" style="margin-top:6px;"><span>⏰ Entrega</span><span>${quando}</span></div>`;
+  const quandoHtml = `<div class="summary-row" style="margin-top:6px;"><span>⏰ ${modoLabel}</span><span>${quando}</span></div>`;
 
   document.getElementById('summaryConfirm').innerHTML =
     itens.map(p => `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`).join('')
     + `<hr class="summary-divider">`
-    + `<div class="summary-row summary-frete"><span>Entrega · ${entregaLabel}</span><span>${freteStr}</span></div>`
+    + `<div class="summary-row summary-frete"><span>${entregaLabel === 'Retirada' ? 'Retirada' : 'Entrega · ' + entregaLabel}</span><span>${freteStr}</span></div>`
     + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`
     + quandoHtml + ocasiaoHtml + cartaoHtml;
 
