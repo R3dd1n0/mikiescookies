@@ -55,7 +55,7 @@ Para ativar um novo produto: alterar `active` + adicionar coluna na planilha + a
 ## Chave Pix e contatos
 - Pix: `60458177377`
 - WhatsApp da loja: `5585999226322`
-- Site: `https://mikies.netlify.app/`
+- Site: `https://r3dd1n0.github.io/mikiescookies/`
 
 ## Comandos do bot Telegram
 `/pedido`, `/status`, `/relatorio`, `/pendentes`, `/consultarpedido`
