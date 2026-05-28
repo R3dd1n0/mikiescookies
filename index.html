@@ -476,16 +476,15 @@ function renderSlots() {
       </label>
     </div>
   `).join('');
-  // Data mínima = amanhã
-  const ftAmanha = new Date(_getHoraFtz().ft);
-  ftAmanha.setDate(ftAmanha.getDate() + 1);
-  const min = ftAmanha.toISOString().split('T')[0];
-  const ftMax = new Date(_getHoraFtz().ft);
-  ftMax.setDate(ftMax.getDate() + 21);
-  const max = ftMax.toISOString().split('T')[0];
-  document.getElementById('quandoData').min   = min;
-  document.getElementById('quandoData').max   = max;
-  document.getElementById('quandoData').value = min;
+  // Datas em fuso de Fortaleza (UTC-3) usando apenas métodos UTC — independente do fuso do navegador
+  const ftNow = Date.now() - 3 * 3600000;
+  const toYMD = ms => new Date(ms).toISOString().slice(0, 10);
+  const min   = toYMD(ftNow + 86400000);
+  const max   = toYMD(ftNow + 21 * 86400000);
+  const dateEl = document.getElementById('quandoData');
+  dateEl.min   = min;
+  dateEl.max   = max;
+  dateEl.value = min;
   grid.querySelectorAll('input[name="quando"]').forEach(r => r.addEventListener('change', () => {
     document.getElementById('quandoData').style.display = r.value === 'agendar' ? 'block' : 'none';
   }));
@@ -733,6 +732,10 @@ document.getElementById('whatsapp').addEventListener('input', function(e) {
 
 renderGrid();
 renderSlots();
+// Garante que clicar em qualquer parte do input de data abre o picker (Chromium desktop)
+document.getElementById('quandoData').addEventListener('click', function() {
+  try { this.showPicker(); } catch (_) {}
+});
 document.querySelectorAll('input[name="entrega"]').forEach(r => r.addEventListener('change', renderSummary));
 document.getElementById('mensagemCartao').addEventListener('input', function() {
   document.getElementById('msgCount').textContent = this.value.length;
