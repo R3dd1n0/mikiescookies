@@ -267,6 +267,16 @@
   footer { background:var(--bordo); color:rgba(245,230,200,0.4); text-align:center; padding:2.5rem 1.5rem; font-size:12px; }
   footer a { color:var(--caramel-lt); text-decoration:none; }
   .footer-ig { display:inline-flex; align-items:center; gap:6px; color:var(--caramel-lt); font-size:13px; margin-bottom:0.5rem; font-weight:500; }
+
+  /* AVALIAÇÃO */
+  #telaAvaliacao { display:none; min-height:100svh; background:var(--bege-lt); }
+  .aval-wrap { max-width:480px; margin:0 auto; padding:5rem 1.5rem 3rem; text-align:center; }
+  .aval-stars { display:flex; gap:10px; justify-content:center; margin-bottom:.4rem; }
+  .aval-star { font-size:2.8rem; cursor:pointer; color:#D4C5A9; transition:color .12s, transform .1s; user-select:none; line-height:1; }
+  .aval-star.ativo { color:var(--caramel-lt); transform:scale(1.08); }
+  .aval-star:hover { color:var(--caramel); }
+  .aval-textarea { width:100%; min-height:90px; resize:vertical; border:2px solid var(--bege); border-radius:12px; padding:12px; font-family:inherit; font-size:14px; background:var(--cream); color:var(--dark-txt); outline:none; transition:border-color .2s; }
+  .aval-textarea:focus { border-color:var(--caramel); }
 </style>
 </head>
 <body>
@@ -407,6 +417,34 @@
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.536 5.848L.057 23.57l5.86-1.538A11.936 11.936 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.6-.5-5.105-1.375l-.366-.217-3.478.913.928-3.39-.238-.384A9.952 9.952 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
     Abrir WhatsApp
   </a>
+</div>
+
+<div id="telaAvaliacao">
+  <div class="aval-wrap">
+    <div style="font-size:3rem; margin-bottom:1rem;">🍪</div>
+    <h2 style="font-family:'Playfair Display',serif; color:var(--bordo); font-size:1.6rem; margin-bottom:.5rem;">Como foi sua experiência?</h2>
+    <p id="avalSubtitulo" style="color:var(--light-txt); font-size:14px; margin-bottom:2rem;"></p>
+
+    <div class="aval-stars" id="avalStars">
+      <span class="aval-star" data-n="1">★</span>
+      <span class="aval-star" data-n="2">★</span>
+      <span class="aval-star" data-n="3">★</span>
+      <span class="aval-star" data-n="4">★</span>
+      <span class="aval-star" data-n="5">★</span>
+    </div>
+    <p id="avalStarLabel" style="color:var(--caramel); font-size:13px; min-height:18px; margin-bottom:1.5rem;"></p>
+
+    <textarea id="avalComentario" class="aval-textarea" placeholder="Conta o que achou... (opcional)" maxlength="300"></textarea>
+    <div style="text-align:right; font-size:11px; color:var(--light-txt); margin-top:4px; margin-bottom:1.25rem;"><span id="avalContador">0</span>/300</div>
+
+    <button id="avalBtn" class="cta-btn" style="width:100%;">Enviar avaliação</button>
+
+    <div id="avalSucesso" style="display:none; margin-top:1.5rem; padding:1.5rem; background:var(--bege); border-radius:16px; color:var(--bordo);">
+      <div style="font-size:2.5rem; margin-bottom:.5rem;">🎉</div>
+      <strong style="font-size:1.1rem;">Obrigada pelo feedback!</strong>
+      <p style="font-size:14px; color:var(--mid-txt); margin-top:.5rem;">Isso ajuda a gente a fazer cookies ainda melhores pra você.</p>
+    </div>
+  </div>
 </div>
 
 <footer>
@@ -746,6 +784,72 @@ document.getElementById('nome').addEventListener('input', function() {
   wrap.style.display = len >= 40 ? 'block' : 'none';
   document.getElementById('nomeCount').textContent = len;
 });
+
+// ---- Tela de Avaliação ----
+(function() {
+  const params = new URLSearchParams(location.search);
+  if (!params.has('avaliacao')) return;
+
+  document.getElementById('telaAvaliacao').style.display  = 'block';
+  document.querySelector('.hero').style.display            = 'none';
+  document.getElementById('cardapio').style.display        = 'none';
+  document.getElementById('formSection').style.display     = 'none';
+  document.getElementById('successScreen').style.display   = 'none';
+  document.querySelector('footer').style.display           = 'none';
+
+  const nome   = decodeURIComponent(params.get('nome')   || '');
+  const pedido = params.get('pedido') || '';
+  document.getElementById('avalSubtitulo').textContent =
+    nome ? `Pedido #${pedido} · Olá, ${nome}!` : pedido ? `Pedido #${pedido}` : '';
+
+  let _nota = 0;
+  const _rotulos = ['','Ruim','Razoável','Bom','Ótimo','Perfeito! 🍪'];
+
+  function _pintarStars(n) {
+    document.querySelectorAll('.aval-star').forEach((s, i) => s.classList.toggle('ativo', i < n));
+  }
+
+  document.querySelectorAll('.aval-star').forEach((star, idx) => {
+    star.addEventListener('click', () => {
+      _nota = idx + 1;
+      _pintarStars(_nota);
+      const lbl = document.getElementById('avalStarLabel');
+      lbl.textContent = _rotulos[_nota];
+      lbl.style.color = 'var(--caramel)';
+    });
+    star.addEventListener('mouseover', () => _pintarStars(idx + 1));
+    star.addEventListener('mouseout',  () => _pintarStars(_nota));
+  });
+
+  document.getElementById('avalComentario').addEventListener('input', function() {
+    document.getElementById('avalContador').textContent = this.value.length;
+  });
+
+  document.getElementById('avalBtn').addEventListener('click', async function() {
+    if (_nota === 0) {
+      const lbl = document.getElementById('avalStarLabel');
+      lbl.textContent = 'Escolha uma nota para continuar.';
+      lbl.style.color = 'var(--bordo)';
+      return;
+    }
+    this.disabled = true;
+    this.textContent = 'Enviando…';
+    const payload = {
+      tipo:       'avaliacao',
+      pedido,
+      nome,
+      nota:       _nota,
+      comentario: document.getElementById('avalComentario').value.trim()
+    };
+    try {
+      await fetch(SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)),
+        { method:'GET', mode:'no-cors' });
+    } catch(_) {}
+    this.style.display = 'none';
+    document.getElementById('avalSucesso').style.display = 'block';
+    document.getElementById('avalSucesso').scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+})();
 </script>
 </body>
 </html>
