@@ -784,13 +784,24 @@ function enviarPedido(e) {
   document.getElementById('successScreen').scrollIntoView({behavior:'smooth', block:'center'});
 }
 
-document.getElementById('whatsapp').addEventListener('input', function(e) {
-  let v = e.target.value.replace(/\D/g,'').slice(0, 11);
+function _aplicarMascaraWA(el) {
+  const cur = el.selectionStart;
+  const antes = el.value.slice(0, cur).replace(/\D/g,'').length;
+  let v = el.value.replace(/\D/g,'').slice(0, 11);
   if (v.length > 7)      v = v.slice(0,2) + ' ' + v.slice(2,3) + ' ' + v.slice(3,7) + '-' + v.slice(7);
   else if (v.length > 3) v = v.slice(0,2) + ' ' + v.slice(2,3) + ' ' + v.slice(3);
   else if (v.length > 2) v = v.slice(0,2) + ' ' + v.slice(2);
-  e.target.value = v;
-});
+  el.value = v;
+  // Reposicionar o cursor proporcionalmente para não saltar para o fim
+  let digitCount = 0, pos = 0;
+  while (pos < v.length && digitCount < antes) {
+    if (/\d/.test(v[pos])) digitCount++;
+    pos++;
+  }
+  el.setSelectionRange(pos, pos);
+}
+
+document.getElementById('whatsapp').addEventListener('input', function() { _aplicarMascaraWA(this); });
 
 renderGrid();
 renderSlots();
@@ -901,14 +912,7 @@ function _jsonp(url) {
   if (!params.has('status')) return;
   _exibirTela('telaStatus');
 
-  // Máscara de WhatsApp idêntica ao formulário principal
-  document.getElementById('statusWa').addEventListener('input', function(e) {
-    let v = e.target.value.replace(/\D/g,'').slice(0, 11);
-    if (v.length > 7)      v = v.slice(0,2)+' '+v.slice(2,3)+' '+v.slice(3,7)+'-'+v.slice(7);
-    else if (v.length > 3) v = v.slice(0,2)+' '+v.slice(2,3)+' '+v.slice(3);
-    else if (v.length > 2) v = v.slice(0,2)+' '+v.slice(2);
-    e.target.value = v;
-  });
+  document.getElementById('statusWa').addEventListener('input', function() { _aplicarMascaraWA(this); });
 
   const COR_PIX  = { 'Aguardando':'#C8A800','Pago':'#2E7D32','Cancelado':'#C62828' };
   const COR_PROD = { 'Pix ainda não confirmado':'#C8A800','Em produção':'#1565C0','Pronto':'#E65100','Entregue':'#2E7D32','Cancelado':'#C62828' };
