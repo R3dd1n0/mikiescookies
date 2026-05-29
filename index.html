@@ -677,22 +677,12 @@ function changeQty(id, delta) {
 
 function renderSummary() {
   const box = document.getElementById('summaryBox');
-  const itens = produtos.filter(p => p.active && qtds[p.id] > 0);
+  const { itens, frete, freteLabel, total } = _getCarrinho();
   if (!itens.length) {
     box.innerHTML = '<div class="empty-cart">Selecione seus sabores acima para continuar ☝️</div>';
     return;
   }
-  const subtotal   = itens.reduce((s,p) => s + p.preco * qtds[p.id], 0);
-  const entregaSel = document.querySelector('input[name="entrega"]:checked');
-  const frete      = entregaSel ? Number(entregaSel.dataset.frete) : 0;
-  const freteLabel = entregaSel ? entregaSel.dataset.label : '';
-  const total      = subtotal + frete;
-  box.innerHTML = itens.map(p =>
-    `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`
-  ).join('')
-  + `<hr class="summary-divider">`
-  + `<div class="summary-row summary-frete"><span>${freteLabel === 'Retirada' ? 'Retirada' : 'Entrega' + (freteLabel ? ' · ' + freteLabel : '')}</span><span>${frete > 0 ? 'R$ ' + frete + ',00' : 'Grátis'}</span></div>`
-  + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`;
+  box.innerHTML = _buildSummaryHTML(itens, frete, freteLabel, total);
 }
 
 function setErro(id, msg) {
@@ -708,15 +698,14 @@ function enviarPedido(e) {
   e.preventDefault();
   const nome           = document.getElementById('nome').value.trim();
   const whatsapp       = document.getElementById('whatsapp').value.replace(/\D/g,'');
-  const itens          = produtos.filter(p => p.active && qtds[p.id] > 0);
-  const entregaSel     = document.querySelector('input[name="entrega"]:checked');
+  const { itens, subtotal, frete, freteLabel, total, entregaSel } = _getCarrinho();
   const ocasiao        = document.getElementById('ocasiao').value;
   const mensagemCartao = document.getElementById('mensagemCartao').value.trim();
   const quando         = _getQuandoLabel();
 
-  setErro('erro-nome',     nome             ? '' : 'Por favor, informe seu nome.');
+  setErro('erro-nome',     nome         ? '' : 'Por favor, informe seu nome.');
   const waOk = whatsapp.length >= 10 && whatsapp.length <= 11;
-  setErro('erro-whatsapp', waOk ? '' : 'Informe um WhatsApp válido com DDD (10 ou 11 dígitos).');
+  setErro('erro-whatsapp', waOk         ? '' : 'Informe um WhatsApp válido com DDD (10 ou 11 dígitos).');
   setErro('erro-itens',    itens.length ? '' : 'Selecione pelo menos um cookie!');
 
   if (!nome || !waOk || !itens.length) {
@@ -724,57 +713,43 @@ function enviarPedido(e) {
     return;
   }
 
-  const subtotal     = itens.reduce((s,p) => s + p.preco * qtds[p.id], 0);
-  const frete        = entregaSel ? Number(entregaSel.dataset.frete) : 0;
-  const entregaLabel = entregaSel ? entregaSel.dataset.label : 'Não informado';
-  const total        = subtotal + frete;
-  const freteStr     = frete > 0 ? `R$ ${frete},00` : 'Grátis';
+  const freteStr  = frete > 0 ? `R$ ${frete},00` : 'Grátis';
+  const modoLabel = entregaSel?.value === 'retirada' ? 'Retirada' : 'Entrega';
 
-  const modoLabel    = entregaSel?.value === 'retirada' ? 'Retirada' : 'Entrega';
   const lista        = itens.map(p => `${qtds[p.id]}x ${p.nome}`).join('\n');
   const ocasiaoExtra = ocasiao !== 'Sem motivo especial' ? `\n\nOcasião: ${ocasiao}` : '';
   const cartaoExtra  = mensagemCartao ? `\nCartão: "${mensagemCartao}"` : '';
-  const msg = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${entregaLabel})\nTotal: R$ ${total},00\n${modoLabel}: ${quando}${ocasiaoExtra}${cartaoExtra}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
+  const msg = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${freteLabel})\nTotal: R$ ${total},00\n${modoLabel}: ${quando}${ocasiaoExtra}${cartaoExtra}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
 
   const btn = document.getElementById('btnEnviar');
   btn.disabled = true;
   btn.textContent = 'Registrando pedido...';
 
-  const payload = {
-    nome, whatsapp, entrega: entregaLabel, frete, subtotal, total,
+  _gasFetch({
+    nome, whatsapp, entrega: freteLabel, frete, subtotal, total,
     quando, ocasiao, mensagemCartao,
     choc_branco: qtds['choc_branco'],
     choc_leite:  qtds['choc_leite'],
     dark:        qtds['dark'],
     red_velvet:  qtds['red_velvet'],
     berry:       qtds['berry'],
-  };
+  }).catch(err => console.warn('Sheets:', err));
 
-  // Dispara para o GAS sem aguardar
-  const url = SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
-  fetch(url, { method:'GET', mode:'no-cors' }).catch(err => console.warn('Sheets:', err));
-
-  // Tela de sucesso imediata
   pedidoTotal = total;
 
-  // Mensagem adaptada ao horário
   const fora = _isForaHorario();
   document.getElementById('successMsg').textContent = fora
     ? `Pedido recebido! Nossa equipe entra em contato no próximo dia útil (${_proximoDiaUtil()}). Enquanto isso, o pagamento via Pix já pode ser feito.`
     : 'Confirme pelo WhatsApp para finalizar. Após a confirmação, realize o pagamento via Pix e envie o comprovante.';
 
+  const quandoHtml  = `<div class="summary-row" style="margin-top:6px;"><span>⏰ ${modoLabel}</span><span>${quando}</span></div>`;
   const ocasiaoHtml = ocasiao !== 'Sem motivo especial'
     ? `<div class="summary-row" style="margin-top:6px;"><span>🎊 Ocasião</span><span>${ocasiao}</span></div>` : '';
-  const cartaoHtml = mensagemCartao
+  const cartaoHtml  = mensagemCartao
     ? `<div class="summary-row" style="flex-direction:column; align-items:flex-start; gap:2px; color:var(--caramel);"><span style="font-style:normal; color:var(--mid-txt);">✉️ Cartão</span><span style="font-style:italic;">"${mensagemCartao}"</span></div>` : '';
-  const quandoHtml = `<div class="summary-row" style="margin-top:6px;"><span>⏰ ${modoLabel}</span><span>${quando}</span></div>`;
 
   document.getElementById('summaryConfirm').innerHTML =
-    itens.map(p => `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`).join('')
-    + `<hr class="summary-divider">`
-    + `<div class="summary-row summary-frete"><span>${entregaLabel === 'Retirada' ? 'Retirada' : 'Entrega · ' + entregaLabel}</span><span>${freteStr}</span></div>`
-    + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`
-    + quandoHtml + ocasiaoHtml + cartaoHtml;
+    _buildSummaryHTML(itens, frete, freteLabel, total, quandoHtml + ocasiaoHtml + cartaoHtml);
 
   document.getElementById('waLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
   gerarQRPix(total);
@@ -810,15 +785,8 @@ document.getElementById('quandoData').addEventListener('click', function() {
   try { this.showPicker(); } catch (_) {}
 });
 document.querySelectorAll('input[name="entrega"]').forEach(r => r.addEventListener('change', renderSummary));
-document.getElementById('mensagemCartao').addEventListener('input', function() {
-  document.getElementById('msgCount').textContent = this.value.length;
-});
-document.getElementById('nome').addEventListener('input', function() {
-  const len = this.value.length;
-  const wrap = document.getElementById('nomeCounterWrap');
-  wrap.style.display = len >= 40 ? 'block' : 'none';
-  document.getElementById('nomeCount').textContent = len;
-});
+_bindContador('mensagemCartao', 'msgCount');
+_bindContador('nome', 'nomeCount', { wrapId:'nomeCounterWrap', threshold:40 });
 
 // Oculta conteúdo principal e exibe uma tela secundária
 function _exibirTela(id) {
@@ -830,15 +798,54 @@ function _exibirTela(id) {
   document.querySelector('footer').style.display      = 'none';
 }
 
-// JSONP helper para leitura de resposta do GAS sem bloqueio CORS
+// JSONP helper para leitura de resposta do GAS sem bloqueio CORS.
+// Gera e injeta o &callback= na URL — não incluir na URL chamadora.
 function _jsonp(url) {
   return new Promise((resolve, reject) => {
-    const name = '_mcb_' + Date.now();
+    const name = '_mcb_' + Date.now() + Math.random().toString(36).slice(2, 7);
     const s    = document.createElement('script');
     window[name] = data => { delete window[name]; s.remove(); resolve(data); };
-    s.onerror   = ()   => { delete window[name]; s.remove(); reject(new Error('network')); };
-    s.src = url;
+    s.onerror    = ()   => { delete window[name]; s.remove(); reject(new Error('network')); };
+    s.src = url + '&callback=' + name;
     document.head.appendChild(s);
+  });
+}
+
+// Dispara para o GAS sem ler a resposta (pedidos, avaliações)
+function _gasFetch(payload) {
+  return fetch(SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)),
+    { method:'GET', mode:'no-cors' });
+}
+
+// Retorna estado atual do carrinho a partir do DOM
+function _getCarrinho() {
+  const itens      = produtos.filter(p => p.active && qtds[p.id] > 0);
+  const subtotal   = itens.reduce((s, p) => s + p.preco * qtds[p.id], 0);
+  const entregaSel = document.querySelector('input[name="entrega"]:checked');
+  const frete      = entregaSel ? Number(entregaSel.dataset.frete) : 0;
+  const freteLabel = entregaSel ? entregaSel.dataset.label : '';
+  return { itens, subtotal, frete, freteLabel, total: subtotal + frete, entregaSel };
+}
+
+// Monta HTML do resumo de itens + frete + total; extras são linhas adicionais após o total
+function _buildSummaryHTML(itens, frete, freteLabel, total, extras) {
+  const freteStr = frete > 0 ? `R$ ${frete},00` : 'Grátis';
+  const freteNome = freteLabel === 'Retirada' ? 'Retirada' : 'Entrega' + (freteLabel ? ' · ' + freteLabel : '');
+  return itens.map(p =>
+    `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`
+  ).join('')
+  + `<hr class="summary-divider">`
+  + `<div class="summary-row summary-frete"><span>${freteNome}</span><span>${freteStr}</span></div>`
+  + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`
+  + (extras || '');
+}
+
+// Conecta input de texto a um contador de caracteres; wrapId/threshold controlam visibilidade condicional
+function _bindContador(inputId, counterId, opts) {
+  document.getElementById(inputId).addEventListener('input', function() {
+    document.getElementById(counterId).textContent = this.value.length;
+    if (opts?.wrapId)
+      document.getElementById(opts.wrapId).style.display = this.value.length >= opts.threshold ? 'block' : 'none';
   });
 }
 
@@ -881,9 +888,7 @@ function _jsonp(url) {
     star.addEventListener('mouseout',  () => _pintarStars(_nota));
   });
 
-  document.getElementById('avalComentario').addEventListener('input', function() {
-    document.getElementById('avalContador').textContent = this.value.length;
-  });
+  _bindContador('avalComentario', 'avalContador');
 
   document.getElementById('avalBtn').addEventListener('click', async function() {
     if (_nota === 0) {
@@ -894,11 +899,9 @@ function _jsonp(url) {
     }
     this.disabled = true;
     this.textContent = 'Enviando…';
-    const payload = { tipo:'avaliacao', token, nota:_nota,
-                      comentario: document.getElementById('avalComentario').value.trim() };
     try {
-      await fetch(SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)),
-        { method:'GET', mode:'no-cors' });
+      await _gasFetch({ tipo:'avaliacao', token, nota:_nota,
+                        comentario: document.getElementById('avalComentario').value.trim() });
     } catch(_) {}
     this.style.display = 'none';
     document.getElementById('avalSucesso').style.display = 'block';
@@ -934,9 +937,7 @@ function _jsonp(url) {
     erroEl.textContent = '';
     this.disabled = true; this.textContent = 'Consultando…';
 
-    const payload = { tipo:'status', pedido, whatsapp };
-    const cbName  = '_mcb_' + Date.now();
-    const url     = SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)) + '&callback=' + cbName;
+    const url = SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify({ tipo:'status', pedido, whatsapp }));
 
     let data;
     try { data = await _jsonp(url); }
