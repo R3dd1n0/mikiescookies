@@ -8,7 +8,7 @@
 <meta property="og:description" content="Cookies artesanais em Fortaleza, CE. 5 sabores irresistíveis. Peça pelo WhatsApp e pague com Pix.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://r3dd1n0.github.io/mikiescookies/">
-<meta property="og:image" content="https://r3dd1n0.github.io/mikiescookies/images/choc_branco.jpg">
+<meta property="og:image" content="https://r3dd1n0.github.io/mikiescookies/images/choc_branco.webp">
 <meta name="theme-color" content="#6B0F2A">
 <link rel="icon" type="image/svg+xml" href="images/mikies-favicon.svg">
 <link rel="shortcut icon" href="images/mikies-favicon.svg">
@@ -40,7 +40,7 @@
   }
   .hero-bg {
     position:absolute; inset:0;
-    background:url('images/hero_bg.jpg') center/cover no-repeat;
+    background:url('images/hero_bg.webp') center/cover no-repeat;
     filter:brightness(0.38);
     transform:scale(1.04);
     transition:transform 8s ease;
@@ -277,6 +277,12 @@
   .aval-star:hover { color:var(--caramel); }
   .aval-textarea { width:100%; min-height:90px; resize:vertical; border:2px solid var(--bege); border-radius:12px; padding:12px; font-family:inherit; font-size:14px; background:var(--cream); color:var(--dark-txt); outline:none; transition:border-color .2s; }
   .aval-textarea:focus { border-color:var(--caramel); }
+
+  /* STATUS */
+  #telaStatus { display:none; min-height:100svh; background:var(--bege-lt); }
+  .status-row { display:flex; justify-content:space-between; align-items:center; gap:1rem; font-size:14px; padding:.4rem 0; }
+  .status-row span:first-child { color:var(--mid-txt); font-size:13px; min-width:80px; }
+  .status-chip { display:inline-block; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:500; }
 </style>
 </head>
 <body>
@@ -417,6 +423,30 @@
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.536 5.848L.057 23.57l5.86-1.538A11.936 11.936 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.6-.5-5.105-1.375l-.366-.217-3.478.913.928-3.39-.238-.384A9.952 9.952 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
     Abrir WhatsApp
   </a>
+</div>
+
+<div id="telaStatus">
+  <div class="aval-wrap">
+    <div style="font-size:3rem; margin-bottom:1rem;">📦</div>
+    <h2 style="font-family:'Playfair Display',serif; color:var(--bordo); font-size:1.6rem; margin-bottom:.5rem;">Status do Pedido</h2>
+    <p style="color:var(--light-txt); font-size:14px; margin-bottom:2rem;">Informe os dados para consultar seu pedido.</p>
+
+    <div id="statusForm">
+      <div class="form-group" style="margin-bottom:1rem;">
+        <input type="number" id="statusPedidoNum" placeholder="Número do pedido" min="1"
+          style="width:100%; padding:14px 16px; border:2px solid var(--bege); border-radius:12px; font-family:inherit; font-size:15px; background:var(--cream); color:var(--dark-txt); outline:none; transition:border-color .2s; -moz-appearance:textfield;"
+          inputmode="numeric">
+      </div>
+      <div class="form-group" style="margin-bottom:1.25rem;">
+        <input type="tel" id="statusWa" placeholder="Seu WhatsApp (com DDD)" maxlength="16" inputmode="numeric"
+          style="width:100%; padding:14px 16px; border:2px solid var(--bege); border-radius:12px; font-family:inherit; font-size:15px; background:var(--cream); color:var(--dark-txt); outline:none; transition:border-color .2s;">
+      </div>
+      <button id="statusBtn" class="cta-btn" style="width:100%;">Consultar</button>
+      <p id="statusErro" style="color:var(--bordo); font-size:13px; margin-top:.75rem; min-height:18px; text-align:center;"></p>
+    </div>
+
+    <div id="statusResultado" style="display:none; margin-top:1.5rem;"></div>
+  </div>
 </div>
 
 <div id="telaAvaliacao">
@@ -601,23 +631,16 @@ function copiarCodigoPix() {
 }
 
 // --- Cardápio ---
-const IMGS = {
-  choc_branco: 'images/choc_branco.jpg',
-  choc_leite:  'images/choc_leite.jpg',
-  dark:        'images/dark.jpg',
-  red_velvet:  'images/red_velvet.jpg',
-  berry:       'images/berry.jpg',
-};
-
+// imgs: array de imagens — primeiro item é exibido no card. Adicione mais para suporte a galeria futura.
 const produtos = [
-  { id:'choc_branco',    nome:'Chocolate Branco',   sub:'massa tradicional com gotas de choco branco',              preco:12, img:IMGS.choc_branco, active:true },
-  { id:'choc_leite',     nome:'Chocolate ao Leite', sub:'massa tradicional com gotas de choco ao leite',            preco:12, img:IMGS.choc_leite,  active:true },
-  { id:'dark',           nome:'Black',              sub:'massa cacau black com gotas de choco ao leite e amargo',   preco:12, img:IMGS.dark,        active:true },
-  { id:'red_velvet',     nome:'Red Velvet',         sub:'massa red incrível com gotas de choco branco',             preco:12, img:IMGS.red_velvet,  active:true },
-  { id:'berry',          nome:'Berry',              sub:'massa tradicional com gotas de choco branco e de morango', preco:12, img:IMGS.berry,       active:true },
+  { id:'choc_branco', nome:'Chocolate Branco',   sub:'massa tradicional com gotas de choco branco',              preco:12, imgs:['images/choc_branco.webp'], active:true },
+  { id:'choc_leite',  nome:'Chocolate ao Leite', sub:'massa tradicional com gotas de choco ao leite',            preco:12, imgs:['images/choc_leite.webp'],  active:true },
+  { id:'dark',        nome:'Black',              sub:'massa cacau black com gotas de choco ao leite e amargo',   preco:12, imgs:['images/dark.webp'],        active:true },
+  { id:'red_velvet',  nome:'Red Velvet',         sub:'massa red incrível com gotas de choco branco',             preco:12, imgs:['images/red_velvet.webp'],  active:true },
+  { id:'berry',       nome:'Berry',              sub:'massa tradicional com gotas de choco branco e de morango', preco:12, imgs:['images/berry.webp'],       active:true },
   // Produtos especiais — altere active:false → active:true para exibir no cardápio
   // Lembre de adicionar a coluna correspondente na planilha e no GAS antes de ativar
-  // { id:'lata_namorados', nome:'Lata Namorados', sub:'Caixa especial com 12 cookies sortidos. Sob encomenda.', preco:59, img:IMGS.choc_branco, active:false, badge:'Encomenda' },
+  // { id:'lata_namorados', nome:'Lata Namorados', sub:'Caixa especial com 12 cookies sortidos. Sob encomenda.', preco:59, imgs:['images/choc_branco.webp'], active:false, badge:'Encomenda' },
 ];
 
 const qtds = {};
@@ -627,7 +650,7 @@ function renderGrid() {
   const grid = document.getElementById('cookieGrid');
   grid.innerHTML = produtos.filter(p => p.active).map(p => `
     <div class="cookie-card ${qtds[p.id]>0?'selected':''}" id="card-${p.id}">
-      <img class="card-img" src="${p.img}" alt="${p.nome}" loading="lazy">
+      <img class="card-img" src="${p.imgs[0]}" alt="${p.nome}" loading="lazy">
       <div class="card-body">
         ${p.badge ? `<div class="card-badge">${p.badge}</div>` : ''}
         <div class="card-name">${p.nome}</div>
@@ -692,10 +715,11 @@ function enviarPedido(e) {
   const quando         = _getQuandoLabel();
 
   setErro('erro-nome',     nome             ? '' : 'Por favor, informe seu nome.');
-  setErro('erro-whatsapp', whatsapp.length >= 10 ? '' : 'Informe um WhatsApp válido com DDD.');
-  setErro('erro-itens',    itens.length     ? '' : 'Selecione pelo menos um cookie!');
+  const waOk = whatsapp.length >= 10 && whatsapp.length <= 11;
+  setErro('erro-whatsapp', waOk ? '' : 'Informe um WhatsApp válido com DDD (10 ou 11 dígitos).');
+  setErro('erro-itens',    itens.length ? '' : 'Selecione pelo menos um cookie!');
 
-  if (!nome || whatsapp.length < 10 || !itens.length) {
+  if (!nome || !waOk || !itens.length) {
     document.querySelector('.field-error:not(:empty)')?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
@@ -785,22 +809,47 @@ document.getElementById('nome').addEventListener('input', function() {
   document.getElementById('nomeCount').textContent = len;
 });
 
+// Oculta conteúdo principal e exibe uma tela secundária
+function _exibirTela(id) {
+  document.getElementById(id).style.display          = 'block';
+  document.querySelector('.hero').style.display       = 'none';
+  document.getElementById('cardapio').style.display   = 'none';
+  document.getElementById('formSection').style.display= 'none';
+  document.getElementById('successScreen').style.display='none';
+  document.querySelector('footer').style.display      = 'none';
+}
+
+// JSONP helper para leitura de resposta do GAS sem bloqueio CORS
+function _jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const name = '_mcb_' + Date.now();
+    const s    = document.createElement('script');
+    window[name] = data => { delete window[name]; s.remove(); resolve(data); };
+    s.onerror   = ()   => { delete window[name]; s.remove(); reject(new Error('network')); };
+    s.src = url;
+    document.head.appendChild(s);
+  });
+}
+
 // ---- Tela de Avaliação ----
 (function() {
   const params = new URLSearchParams(location.search);
   if (!params.has('avaliacao')) return;
+  _exibirTela('telaAvaliacao');
 
-  document.getElementById('telaAvaliacao').style.display  = 'block';
-  document.querySelector('.hero').style.display            = 'none';
-  document.getElementById('cardapio').style.display        = 'none';
-  document.getElementById('formSection').style.display     = 'none';
-  document.getElementById('successScreen').style.display   = 'none';
-  document.querySelector('footer').style.display           = 'none';
+  // Token obrigatório — vem da mensagem WA enviada ao cliente
+  const token = params.get('t') || '';
+  // pedido/nome na URL são só para exibição; GAS usa o token para validar
+  const nome   = decodeURIComponent(params.get('n') || '');
+  const pedido = params.get('p') || '';
 
-  const nome   = decodeURIComponent(params.get('nome')   || '');
-  const pedido = params.get('pedido') || '';
+  if (!token) {
+    document.getElementById('avalSubtitulo').textContent = 'Link inválido ou já utilizado.';
+    document.getElementById('avalBtn').disabled = true;
+    return;
+  }
   document.getElementById('avalSubtitulo').textContent =
-    nome ? `Pedido #${pedido} · Olá, ${nome}!` : pedido ? `Pedido #${pedido}` : '';
+    nome ? `Pedido #${pedido} · Olá, ${nome}!` : pedido ? `Pedido #${pedido}` : 'Sua opinião é muito importante!';
 
   let _nota = 0;
   const _rotulos = ['','Ruim','Razoável','Bom','Ótimo','Perfeito! 🍪'];
@@ -834,13 +883,8 @@ document.getElementById('nome').addEventListener('input', function() {
     }
     this.disabled = true;
     this.textContent = 'Enviando…';
-    const payload = {
-      tipo:       'avaliacao',
-      pedido,
-      nome,
-      nota:       _nota,
-      comentario: document.getElementById('avalComentario').value.trim()
-    };
+    const payload = { tipo:'avaliacao', token, nota:_nota,
+                      comentario: document.getElementById('avalComentario').value.trim() };
     try {
       await fetch(SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)),
         { method:'GET', mode:'no-cors' });
@@ -848,6 +892,76 @@ document.getElementById('nome').addEventListener('input', function() {
     this.style.display = 'none';
     document.getElementById('avalSucesso').style.display = 'block';
     document.getElementById('avalSucesso').scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+})();
+
+// ---- Tela de Status ----
+(function() {
+  const params = new URLSearchParams(location.search);
+  if (!params.has('status')) return;
+  _exibirTela('telaStatus');
+
+  // Máscara de WhatsApp idêntica ao formulário principal
+  document.getElementById('statusWa').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g,'').slice(0, 11);
+    if (v.length > 7)      v = v.slice(0,2)+' '+v.slice(2,3)+' '+v.slice(3,7)+'-'+v.slice(7);
+    else if (v.length > 3) v = v.slice(0,2)+' '+v.slice(2,3)+' '+v.slice(3);
+    else if (v.length > 2) v = v.slice(0,2)+' '+v.slice(2);
+    e.target.value = v;
+  });
+
+  const COR_PIX  = { 'Aguardando':'#C8A800','Pago':'#2E7D32','Cancelado':'#C62828' };
+  const COR_PROD = { 'Pix ainda não confirmado':'#C8A800','Em produção':'#1565C0','Pronto':'#E65100','Entregue':'#2E7D32','Cancelado':'#C62828' };
+  const LABEL_PROD = { 'Pix ainda não confirmado':'Aguardando confirmação do Pix','Em produção':'Em produção','Pronto':'Pronto para entrega','Entregue':'Entregue','Cancelado':'Cancelado' };
+
+  function _chip(txt, cor) {
+    return `<span class="status-chip" style="background:${cor}18; color:${cor}; border:1px solid ${cor}40;">${txt}</span>`;
+  }
+
+  document.getElementById('statusBtn').addEventListener('click', async function() {
+    const pedido   = document.getElementById('statusPedidoNum').value.trim();
+    const whatsapp = document.getElementById('statusWa').value.replace(/\D/g,'');
+    const erroEl   = document.getElementById('statusErro');
+
+    if (!pedido || whatsapp.length < 10 || whatsapp.length > 11) {
+      erroEl.textContent = 'Preencha o número do pedido e o WhatsApp com DDD.';
+      return;
+    }
+    erroEl.textContent = '';
+    this.disabled = true; this.textContent = 'Consultando…';
+
+    const payload = { tipo:'status', pedido, whatsapp };
+    const cbName  = '_mcb_' + Date.now();
+    const url     = SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)) + '&callback=' + cbName;
+
+    let data;
+    try { data = await _jsonp(url); }
+    catch(_) {
+      this.disabled = false; this.textContent = 'Consultar';
+      erroEl.textContent = 'Não foi possível consultar. Tente novamente.';
+      return;
+    }
+    this.disabled = false; this.textContent = 'Consultar';
+
+    const el = document.getElementById('statusResultado');
+    if (!data || data.error) {
+      el.innerHTML = `<p style="color:var(--bordo); text-align:center; padding:1rem; background:var(--bege); border-radius:12px;">Pedido não encontrado.<br><small>Verifique o número e o WhatsApp informados.</small></p>`;
+      el.style.display = 'block';
+      return;
+    }
+    const quandoRow = (data.quando && data.quando !== 'Não informado')
+      ? `<div class="status-row"><span>Previsão</span><span style="font-size:13px; color:var(--dark-txt);">${data.quando}</span></div>` : '';
+    el.innerHTML = `
+      <div style="background:var(--bege); border-radius:16px; padding:1.25rem;">
+        <div style="font-weight:600; color:var(--bordo); margin-bottom:1rem; text-align:center; font-size:1rem;">
+          Pedido #${pedido}${data.data ? ' · ' + data.data : ''}
+        </div>
+        <div class="status-row"><span>Pagamento</span>${_chip(data.statusPix, COR_PIX[data.statusPix]||'#666')}</div>
+        <div class="status-row"><span>Pedido</span>${_chip(LABEL_PROD[data.statusProd]||data.statusProd, COR_PROD[data.statusProd]||'#666')}</div>
+        ${quandoRow}
+      </div>`;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
   });
 })();
 </script>
