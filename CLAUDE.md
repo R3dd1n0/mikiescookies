@@ -73,8 +73,8 @@ Para ativar um novo produto: alterar `active` + adicionar coluna na planilha + a
 | Retirada | Grátis |
 
 ## Chave Pix e contatos
-- Pix: `60458177377`
-- WhatsApp da loja: `5585999226322`
+- Pix: `mikiescookies@gmail.com`
+- WhatsApp da loja: `5585920080270`
 - Site: `https://r3dd1n0.github.io/mikiescookies/`
 
 ## Comandos do bot Telegram
