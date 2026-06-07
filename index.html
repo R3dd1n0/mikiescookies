@@ -407,6 +407,7 @@
 <div class="success-screen" id="successScreen">
   <div class="success-icon">🍪</div>
   <h2>Quase lá!</h2>
+  <p id="pedidoNumLine" style="display:none; font-weight:600; color:var(--bordo); margin:.25rem 0 .5rem; font-size:1rem;"></p>
   <p id="successMsg">Confirme pelo WhatsApp para finalizar. Após a confirmação, realize o pagamento via Pix e envie o comprovante.</p>
 
   <div class="summary-box" id="summaryConfirm" style="text-align:left; margin-bottom:1.25rem;"></div>
@@ -418,6 +419,8 @@
     <div class="pix-note">Aponte a câmera do app do seu banco para o QR — o valor já vem preenchido.</div>
     <button class="copy-btn" id="btnCopiarCodigo" onclick="copiarCodigoPix()">Copiar código Pix →</button>
   </div>
+
+  <button id="btnJaPaguei" style="display:block; width:100%; margin-bottom:1rem; padding:13px; background:#2E7D32; color:#fff; border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:opacity .15s;">💸 Já fiz o Pix — avisar a loja</button>
 
   <a href="#" class="wa-btn" id="waLink" target="_blank">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.536 5.848L.057 23.57l5.86-1.538A11.936 11.936 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.6-.5-5.105-1.375l-.366-.217-3.478.913.928-3.39-.238-.384A9.952 9.952 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
@@ -492,6 +495,12 @@ const WA_NUMBER = '5585920080270';
 
 let pedidoTotal = 0;
 let _pixPayloadAtual = '';
+let _pedidoAtual = null;
+
+// Escapa texto livre do cliente antes de injetar em innerHTML (evita quebra de layout / injeção)
+function _escHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
 
 // --- Horário Fortaleza (UTC-3, sem DST) ---
 function _getHoraFtz() {
@@ -694,7 +703,7 @@ function setErro(id, msg) {
   if (input) input.classList.toggle('invalid', !!msg);
 }
 
-function enviarPedido(e) {
+async function enviarPedido(e) {
   e.preventDefault();
   const nome           = document.getElementById('nome').value.trim();
   const whatsapp       = document.getElementById('whatsapp').value.replace(/\D/g,'');
@@ -725,7 +734,7 @@ function enviarPedido(e) {
   btn.disabled = true;
   btn.textContent = 'Registrando pedido...';
 
-  _gasFetch({
+  const payload = {
     nome, whatsapp, entrega: freteLabel, frete, subtotal, total,
     quando, ocasiao, mensagemCartao,
     choc_branco: qtds['choc_branco'],
@@ -733,9 +742,27 @@ function enviarPedido(e) {
     dark:        qtds['dark'],
     red_velvet:  qtds['red_velvet'],
     berry:       qtds['berry'],
-  }).catch(err => console.warn('Sheets:', err));
+  };
+
+  // Confirma a gravação no Sheets via JSONP — antes o pedido era enviado às cegas (no-cors),
+  // mostrando "sucesso" mesmo quando o GAS falhava. Se a confirmação não vier, seguimos para a
+  // tela de sucesso assim mesmo (o cliente fecha pelo WhatsApp), mas sem exibir o nº do pedido.
+  let pedidoNum = null;
+  try {
+    const resp = await _jsonp(SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)), 12000);
+    if (resp && resp.ok && resp.pedido) pedidoNum = resp.pedido;
+  } catch (_) { /* rede/timeout: degrada para o fluxo antigo, sem bloquear o cliente */ }
 
   pedidoTotal = total;
+  _pedidoAtual = { pedido: pedidoNum, nome, whatsapp, total };
+
+  const numLine = document.getElementById('pedidoNumLine');
+  if (pedidoNum) {
+    numLine.textContent = `Pedido #${pedidoNum} registrado ✓`;
+    numLine.style.display = 'block';
+  } else {
+    numLine.style.display = 'none';
+  }
 
   const fora = _isForaHorario();
   document.getElementById('successMsg').textContent = fora
@@ -746,13 +773,16 @@ function enviarPedido(e) {
   const ocasiaoHtml = ocasiao !== 'Sem motivo especial'
     ? `<div class="summary-row" style="margin-top:6px;"><span>🎊 Ocasião</span><span>${ocasiao}</span></div>` : '';
   const cartaoHtml  = mensagemCartao
-    ? `<div class="summary-row" style="flex-direction:column; align-items:flex-start; gap:2px; color:var(--caramel);"><span style="font-style:normal; color:var(--mid-txt);">✉️ Cartão</span><span style="font-style:italic;">"${mensagemCartao}"</span></div>` : '';
+    ? `<div class="summary-row" style="flex-direction:column; align-items:flex-start; gap:2px; color:var(--caramel);"><span style="font-style:normal; color:var(--mid-txt);">✉️ Cartão</span><span style="font-style:italic;">"${_escHtml(mensagemCartao)}"</span></div>` : '';
 
   document.getElementById('summaryConfirm').innerHTML =
     _buildSummaryHTML(itens, frete, freteLabel, total, quandoHtml + ocasiaoHtml + cartaoHtml);
 
   document.getElementById('waLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
   gerarQRPix(total);
+
+  btn.disabled = false;
+  btn.textContent = 'Fazer pedido → confirmar pelo WhatsApp 🍪';
 
   document.getElementById('formSection').style.display = 'none';
   document.getElementById('successScreen').classList.add('visible');
@@ -788,6 +818,21 @@ document.querySelectorAll('input[name="entrega"]').forEach(r => r.addEventListen
 _bindContador('mensagemCartao', 'msgCount');
 _bindContador('nome', 'nomeCount', { wrapId:'nomeCounterWrap', threshold:40 });
 
+// Botão "Já paguei!" — notifica a loja no Telegram (via GAS) que o Pix foi feito
+document.getElementById('btnJaPaguei').addEventListener('click', function() {
+  this.disabled = true;
+  this.style.opacity = '0.75';
+  this.style.cursor = 'default';
+  _gasFetch({
+    tipo: 'pago',
+    pedido:   _pedidoAtual?.pedido   || '',
+    nome:     _pedidoAtual?.nome     || '',
+    whatsapp: _pedidoAtual?.whatsapp || '',
+    total:    _pedidoAtual?.total    || 0,
+  }).catch(() => {});
+  this.textContent = '✓ Loja avisada! Envie o comprovante pelo WhatsApp';
+});
+
 // Oculta conteúdo principal e exibe uma tela secundária
 function _exibirTela(id) {
   document.getElementById(id).style.display          = 'block';
@@ -800,12 +845,15 @@ function _exibirTela(id) {
 
 // JSONP helper para leitura de resposta do GAS sem bloqueio CORS.
 // Gera e injeta o &callback= na URL — não incluir na URL chamadora.
-function _jsonp(url) {
+function _jsonp(url, timeoutMs = 10000) {
   return new Promise((resolve, reject) => {
     const name = '_mcb_' + Date.now() + Math.random().toString(36).slice(2, 7);
     const s    = document.createElement('script');
-    window[name] = data => { delete window[name]; s.remove(); resolve(data); };
-    s.onerror    = ()   => { delete window[name]; s.remove(); reject(new Error('network')); };
+    let timer;
+    const cleanup = () => { delete window[name]; s.remove(); clearTimeout(timer); };
+    window[name] = data => { cleanup(); resolve(data); };
+    s.onerror    = ()   => { cleanup(); reject(new Error('network')); };
+    timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, timeoutMs);
     s.src = url + '&callback=' + name;
     document.head.appendChild(s);
   });
@@ -955,14 +1003,14 @@ function _bindContador(inputId, counterId, opts) {
       return;
     }
     const quandoRow = (data.quando && data.quando !== 'Não informado')
-      ? `<div class="status-row"><span>Previsão</span><span style="font-size:13px; color:var(--dark-txt);">${data.quando}</span></div>` : '';
+      ? `<div class="status-row"><span>Previsão</span><span style="font-size:13px; color:var(--dark-txt);">${_escHtml(data.quando)}</span></div>` : '';
     el.innerHTML = `
       <div style="background:var(--bege); border-radius:16px; padding:1.25rem;">
         <div style="font-weight:600; color:var(--bordo); margin-bottom:1rem; text-align:center; font-size:1rem;">
-          Pedido #${pedido}${data.data ? ' · ' + data.data : ''}
+          Pedido #${pedido}${data.data ? ' · ' + _escHtml(data.data) : ''}
         </div>
-        <div class="status-row"><span>Pagamento</span>${_chip(data.statusPix, COR_PIX[data.statusPix]||'#666')}</div>
-        <div class="status-row"><span>Pedido</span>${_chip(LABEL_PROD[data.statusProd]||data.statusProd, COR_PROD[data.statusProd]||'#666')}</div>
+        <div class="status-row"><span>Pagamento</span>${_chip(_escHtml(data.statusPix), COR_PIX[data.statusPix]||'#666')}</div>
+        <div class="status-row"><span>Pedido</span>${_chip(_escHtml(LABEL_PROD[data.statusProd]||data.statusProd), COR_PROD[data.statusProd]||'#666')}</div>
         ${quandoRow}
       </div>`;
     el.style.display = 'block';
