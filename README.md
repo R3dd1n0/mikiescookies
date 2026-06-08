@@ -46,7 +46,7 @@ Página única que permite ao cliente escolher sabores, preencher seus dados e f
 ```
 mikiescookies/
 ├── index.html              # Site completo (single-file)
-├── bot_mikies_cookies.gs   # Google Apps Script (gitignored)
+├── bot_mikies_cookies.gs   # Google Apps Script (versionado)
 ├── bot_tests.gs            # Funções de teste do GAS (gitignored)
 ├── ISSUES.md               # Bugs conhecidos e melhorias futuras
 └── images/
@@ -69,7 +69,7 @@ git commit -m "descrição da mudança"
 git push
 ```
 
-O bot GAS é gerenciado diretamente em [script.google.com](https://script.google.com) e **não está no repositório** (ver `.gitignore`). Após atualizar o script, execute `criarTriggers()` uma vez para recriar os triggers.
+O bot GAS é **versionado neste repositório** (`bot_mikies_cookies.gs`), mas roda em [script.google.com](https://script.google.com). Fluxo: editar aqui → copiar o conteúdo para o editor → **Implantar → Gerenciar implantações → editar → Nova versão** (mantém a mesma URL) → executar `criarTriggers()` uma vez.
 
 ## Configurações necessárias (GAS)
 
