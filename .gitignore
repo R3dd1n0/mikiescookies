@@ -1,5 +1,6 @@
-# Google Apps Script — gerenciado diretamente no script.google.com
-bot_mikies_cookies.gs
+# Google Apps Script — versionado no repositório (fonte da verdade).
+# Editar aqui e copiar de volta para o script.google.com após cada mudança.
+# bot_tests.gs segue fora por enquanto (descomente para versionar também).
 bot_tests.gs
 
 # Instruções internas — não precisam ir ao repositório público
