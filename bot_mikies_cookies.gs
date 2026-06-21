@@ -35,6 +35,54 @@ function criarTriggers() {
   Logger.log('Triggers criados com sucesso.');
 }
 
+// Execute UMA vez para preparar a aba "Pedidos" no layout novo (A–W).
+// ⚠️ APAGA todo o conteúdo da aba — use apenas quando os dados são de teste.
+// Cria título, cabeçalho, formatos, dropdowns de status e esconde a coluna JSON.
+function prepararAbaPedidos() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName('Pedidos') || ss.insertSheet('Pedidos');
+
+  const full = sh.getRange(1, 1, sh.getMaxRows(), Math.max(sh.getMaxColumns(), COL.JSON));
+  full.clearContent();
+  full.clearFormat();
+  full.clearDataValidations();
+  sh.setFrozenRows(0);
+  for (let c = 1; c <= sh.getMaxColumns(); c++) sh.showColumns(c);
+
+  const headers = [
+    '# Pedido', 'Data', 'Nome', 'WhatsApp', 'Itens',
+    'Mikies Mimo', 'Mikies Dip', 'Mikies Jewel', 'Mikies to Share', 'Mikies Pocket',
+    'Total Cookies', 'Peso (g)', 'Subtotal', 'Frete', 'Total',
+    'Valor Confirmado', 'Status Pix', 'Status Pedido',
+    'Ocasião', 'Mensagem Cartão', 'Quando', 'Token Avaliação', 'Pedido (JSON)',
+  ];
+
+  // Linha 1: título · Linha 3: cabeçalho · dados a partir da linha 4
+  sh.getRange(1, 1).setValue('PEDIDOS — Mikies Cookies').setFontWeight('bold').setFontSize(12);
+  sh.getRange(3, 1, 1, headers.length).setValues([headers])
+    .setFontWeight('bold').setBackground('#6B0F2A').setFontColor('#FFFFFF');
+  sh.setFrozenRows(3);
+
+  sh.setColumnWidth(COL.ITENS, 320);
+  sh.setColumnWidth(COL.CARTAO, 220);
+  sh.hideColumns(COL.JSON); // coluna técnica (alimenta relatórios/CRM)
+
+  const rows = sh.getMaxRows() - 3;
+  sh.getRange(4, COL.DATA, rows, 1).setNumberFormat('dd/MM/yyyy HH:mm');
+  sh.getRange(4, COL.PESO, rows, 1).setNumberFormat('#,##0" g"');
+  sh.getRange(4, COL.SUBTOTAL, rows, 4).setNumberFormat('"R$ "#,##0.00'); // M:P
+
+  const vPix = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Aguardando', 'Pago', 'Cancelado'], true).build();
+  const vProd = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Pix ainda não confirmado', 'Em produção', 'Pronto', 'Entregue', 'Cancelado'], true).build();
+  sh.getRange(4, COL.STATUS_PIX, rows, 1).setDataValidation(vPix);
+  sh.getRange(4, COL.STATUS_PROD, rows, 1).setDataValidation(vProd);
+
+  SpreadsheetApp.flush();
+  Logger.log('Aba "Pedidos" preparada no layout A–W. Dados removidos.');
+}
+
 // Execute UMA vez para fechar os tópicos do grupo Telegram para membros comuns
 function fecharTopicos() {
   const cfg    = getConfig();
