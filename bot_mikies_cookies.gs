@@ -71,6 +71,7 @@ function prepararAbaPedidos() {
 
   const rows = sh.getMaxRows() - 3;
   sh.getRange(4, COL.DATA, rows, 1).setNumberFormat('dd/MM/yyyy HH:mm');
+  sh.getRange(4, COL.MIMO, rows, 6).setNumberFormat('0');                // F:K (contagens + cookies)
   sh.getRange(4, COL.PESO, rows, 1).setNumberFormat('#,##0" g"');
   sh.getRange(4, COL.SUBTOTAL, rows, 4).setNumberFormat('"R$ "#,##0.00'); // M:P
 
@@ -457,6 +458,7 @@ function salvarPedido(data) {
       peso:    Number(data.peso)    || 0,
     }));
     sheet.getRange(newRow, COL.DATA).setNumberFormat('dd/MM/yyyy HH:mm');
+    sheet.getRange(newRow, COL.MIMO, 1, 6).setNumberFormat('0');                 // F:K (contagens + cookies)
     sheet.getRange(newRow, COL.SUBTOTAL, 1, 3).setNumberFormat('"R$ "#,##0.00'); // M:O
     sheet.getRange(newRow, COL.CONFIRMADO).setNumberFormat('"R$ "#,##0.00');     // P
     sheet.getRange(newRow, COL.PESO).setNumberFormat('#,##0" g"');               // L
