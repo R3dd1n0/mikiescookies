@@ -82,18 +82,24 @@ function prepararAbaPedidos() {
   sh.getRange(4, COL.STATUS_PIX, rows, 1).setDataValidation(vPix);
   sh.getRange(4, COL.STATUS_PROD, rows, 1).setDataValidation(vProd);
 
-  // Zera os dados de teste da aba "Avaliações" (mantém o cabeçalho), se existir
+  // Zera dados de teste de "Avaliações" e "Clientes" (mantêm o cabeçalho), se existirem
+  let avalLimpas = 0, cliLimpos = 0;
   const shAval = ss.getSheetByName('Avaliações');
-  let avalLimpas = 0;
   if (shAval && shAval.getLastRow() > 1) {
     avalLimpas = shAval.getLastRow() - 1;
     shAval.getRange(2, 1, avalLimpas, shAval.getLastColumn()).clearContent();
   }
+  const shCli = ss.getSheetByName('Clientes');
+  if (shCli && shCli.getLastRow() > 1) {
+    cliLimpos = shCli.getLastRow() - 1;
+    shCli.getRange(2, 1, cliLimpos, shCli.getLastColumn()).clearContent();
+  }
 
   prepararAbaProdutos(); // aba de referência (catálogo atual)
+  atualizarPainel();     // painel de indicadores no novo layout
 
   SpreadsheetApp.flush();
-  Logger.log(`Pronto: "Pedidos" no layout A–W, ${avalLimpas} avaliação(ões) removida(s) e "Produtos" atualizada.`);
+  Logger.log(`Pronto: "Pedidos" no layout A–W · ${avalLimpas} avaliação(ões) e ${cliLimpos} cliente(s) de teste removidos · "Produtos" e "Painel" atualizados.`);
 }
 
 // Limpa e preenche a aba "Produtos" com o catálogo atual (embalagens + sabores).
@@ -134,6 +140,80 @@ function prepararAbaProdutos() {
   sh.autoResizeColumns(1, headers.length);
   SpreadsheetApp.flush();
   Logger.log('Aba "Produtos" atualizada com o catálogo atual.');
+}
+
+// Recalcula a aba "Painel" a partir dos Pedidos (layout A–W + JSON da col W).
+// Chamada a cada pedido novo e a cada mudança de status; também pode rodar à mão.
+function atualizarPainel() {
+  const ss  = SpreadsheetApp.getActiveSpreadsheet();
+  const shP = ss.getSheetByName('Pedidos');
+  if (!shP) return;
+  const sh  = ss.getSheetByName('Painel') || ss.insertSheet('Painel');
+  const lastRow = shP.getLastRow();
+  const dados   = lastRow >= 4 ? shP.getRange(4, 1, lastRow - 3, COL.JSON).getValues() : [];
+
+  let qtd = 0, fat = 0, cookies = 0;
+  let aguardando = 0, pago = 0, producao = 0, pronto = 0, entregue = 0, cancelado = 0;
+  const emb = {}; EMBALAGENS.forEach(e => emb[e.id] = 0);
+  const sab = {}; SABORES_LISTA.forEach(s => sab[s] = 0);
+
+  for (const r of dados) {
+    if (!r[COL.NUM - 1]) continue;
+    const sPix = r[COL.STATUS_PIX - 1], sProd = r[COL.STATUS_PROD - 1];
+    if (sPix === 'Aguardando') aguardando++;
+    if (sPix === 'Pago')       pago++;
+    if (sProd === 'Em produção') producao++;
+    if (sProd === 'Pronto')      pronto++;
+    if (sProd === 'Entregue')    entregue++;
+    if (sProd === 'Cancelado' || sPix === 'Cancelado') { cancelado++; continue; }
+    qtd++;
+    fat     += Number(r[COL.TOTAL - 1])   || 0;
+    cookies += Number(r[COL.COOKIES - 1]) || 0;
+    EMBALAGENS.forEach((e, i) => { emb[e.id] += Number(r[COL.MIMO - 1 + i]) || 0; });
+    try {
+      const j = JSON.parse(r[COL.JSON - 1] || '{}');
+      if (j.saboresFreq) Object.entries(j.saboresFreq).forEach(([s, n]) => {
+        if (sab[s] != null) sab[s] += Number(n) || 0;
+      });
+    } catch (_) {}
+  }
+  const ticket = qtd ? fat / qtd : 0;
+
+  const out = [
+    ['PAINEL — Mikies Cookies', ''],
+    ['Atualizado em', Utilities.formatDate(new Date(), 'America/Fortaleza', 'dd/MM/yyyy HH:mm')],
+    ['', ''],
+    ['Indicador', 'Valor'],
+    ['Pedidos (ativos)', qtd],
+    ['Faturamento', fat],
+    ['Ticket médio', ticket],
+    ['Cookies vendidos', cookies],
+    ['Aguardando Pix', aguardando],
+    ['Pix confirmado', pago],
+    ['Em produção', producao],
+    ['Pronto p/ entrega', pronto],
+    ['Entregue', entregue],
+    ['Cancelado', cancelado],
+    ['', ''],
+    ['Embalagem', 'Qtd vendida'],
+    ...EMBALAGENS.map(e => [e.nome, emb[e.id]]),
+    ['', ''],
+    ['Sabor', 'Frequência de escolha'],
+    ...SABORES_LISTA.map(s => [s, sab[s]]),
+  ];
+
+  sh.clear();
+  sh.getRange(1, 1, out.length, 2).setValues(out);
+  sh.getRange(1, 1).setFontWeight('bold').setFontSize(13);
+  const rFat = 6, rTicket = 7;                 // linhas de moeda
+  const rHdrEmb = 16, rHdrSab = 16 + EMBALAGENS.length + 2;
+  [4, rHdrEmb, rHdrSab].forEach(r =>
+    sh.getRange(r, 1, 1, 2).setFontWeight('bold').setBackground('#6B0F2A').setFontColor('#FFFFFF'));
+  sh.getRange(rFat, 2).setNumberFormat('"R$ "#,##0.00');
+  sh.getRange(rTicket, 2).setNumberFormat('"R$ "#,##0.00');
+  sh.setColumnWidth(1, 200);
+  sh.setColumnWidth(2, 150);
+  sh.setFrozenRows(0);
 }
 
 // Execute UMA vez para fechar os tópicos do grupo Telegram para membros comuns
@@ -479,6 +559,7 @@ function salvarPedido(data) {
       itensTexto:     data.itensTexto     || '',
       pedidosAnteriores: _contarPedidosAnteriores(sheet, data.whatsapp, newRow),
     });
+    try { atualizarPainel(); } catch (_) {}
     return { ok:true, pedido:numeroPedido };
   } catch(err) {
     return { ok:false, status:'error', message:err.toString() };
@@ -708,6 +789,7 @@ function onEditInstalavel(e) {
       numeroPedido, nomeCliente, whatsapp, avalToken, itensTexto,
     }, topics.STATUS);
   }
+  try { atualizarPainel(); } catch (_) {}
 }
 
 const LIMITE_MINUTOS = 60;
