@@ -4,11 +4,12 @@ Site de pedidos online para a **Mikies Cookies** — confeitaria artesanal de Fo
 
 ## Sobre o projeto
 
-Página única que permite ao cliente escolher sabores, preencher seus dados e finalizar o pedido diretamente pelo WhatsApp, com pagamento via Pix. O backend é um Google Apps Script que registra pedidos em planilha e notifica a equipe via Telegram.
+Página única que permite ao cliente escolher uma embalagem, montar os sabores, preencher seus dados e finalizar o pedido diretamente pelo WhatsApp, com pagamento via Pix. O backend é um Google Apps Script que registra pedidos em planilha e notifica a equipe via Telegram.
 
 ## Funcionalidades
 
-- Cardápio interativo com 5 sabores e controle de quantidade
+- Cardápio de embalagens com configurador de sabores (até N por caixa ou quantidade por pacote)
+- Acréscimo automático de Matcha conforme a embalagem
 - Slots de disponibilidade dinâmicos (O quanto antes / Hoje tarde / Hoje noite / Agendar)
 - QR Code Pix dinâmico com payload EMV gerado no frontend
 - Formulário com validação inline, máscara de telefone e agendamento (até 3 semanas)
@@ -20,15 +21,21 @@ Página única que permite ao cliente escolher sabores, preencher seus dados e f
 - Aviso de fora do horário com previsão do próximo dia útil
 - Design responsivo, otimizado para mobile
 
-## Sabores disponíveis
+## Embalagens
 
-| Sabor | Descrição |
-|---|---|
-| Chocolate Branco | Massa tradicional com gotas de chocolate branco |
-| Chocolate ao Leite | Massa tradicional com gotas de chocolate ao leite |
-| Dark | Massa cacau black com gotas de chocolate ao leite e amargo |
-| Red Velvet | Massa red velvet com gotas de chocolate branco |
-| Berry | Massa tradicional com gotas de chocolate branco e de morango |
+| Embalagem | Preço | Cookies | Sabores |
+|---|---|---|---|
+| Mikies Mimo | R$ 59,90 | 40 | até 3 |
+| Mikies Dip | R$ 64,90 | 30 | até 3 · acompanha nutela + caramelo salgado |
+| Mikies Jewel | R$ 39,90 | 24 | 1 |
+| Mikies to Share | R$ 25,90 | 20 | 1 |
+| Mikies Pocket | R$ 12,90 /pacote | 6 /pacote | 1 · mínimo 10 pacotes |
+
+Acréscimo de **Matcha** por embalagem (R$ 2 a R$ 5). Detalhes em `CLAUDE.md`.
+
+## Sabores
+
+Chocolate ao Leite · Ninho · Red Velvet · Black · Morango · Matcha
 
 ## Tecnologias
 

@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Cookies artesanais em Fortaleza, CE. 5 sabores irresistíveis. Peça pelo WhatsApp e pague com Pix.">
+<meta name="description" content="Cookies artesanais em Fortaleza, CE. vários formatos e 6 sabores artesanais. Peça pelo WhatsApp e pague com Pix.">
 <meta property="og:title" content="Mikies Cookies — Peça os seus">
-<meta property="og:description" content="Cookies artesanais em Fortaleza, CE. 5 sabores irresistíveis. Peça pelo WhatsApp e pague com Pix.">
+<meta property="og:description" content="Cookies artesanais em Fortaleza, CE. vários formatos e 6 sabores artesanais. Peça pelo WhatsApp e pague com Pix.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://r3dd1n0.github.io/mikiescookies/">
 <meta property="og:image" content="https://r3dd1n0.github.io/mikiescookies/images/choc_branco.webp">
@@ -283,6 +283,61 @@
   .status-row { display:flex; justify-content:space-between; align-items:center; gap:1rem; font-size:14px; padding:.4rem 0; }
   .status-row span:first-child { color:var(--mid-txt); font-size:13px; min-width:80px; }
   .status-chip { display:inline-block; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:500; }
+
+  /* EMBALAGENS — meta + botão escolher */
+  .card-meta { font-size:11px; color:var(--mid-txt); margin-bottom:0.7rem; line-height:1.6; }
+  .card-meta b { color:var(--bordo); font-weight:600; }
+  .btn-escolher {
+    width:100%; padding:10px; background:transparent; border:1.5px solid var(--caramel);
+    color:var(--bordo-mid); border-radius:10px; font-family:inherit; font-size:13px; font-weight:500;
+    cursor:pointer; transition:all .15s;
+  }
+  .btn-escolher:hover { background:var(--caramel); color:#fff; }
+
+  /* CART LINE */
+  .cart-rm { background:none; border:none; color:var(--light-txt); cursor:pointer; font-size:13px; margin-left:8px; padding:0 2px; line-height:1; }
+  .cart-rm:hover { color:var(--bordo); }
+  .summary-row.cart-line span:last-child { white-space:nowrap; }
+
+  /* MODAL CONFIGURADOR */
+  .cfg-modal { position:fixed; inset:0; z-index:50; display:none; align-items:flex-end; justify-content:center; }
+  .cfg-modal.visible { display:flex; }
+  .cfg-backdrop { position:absolute; inset:0; background:rgba(26,6,16,0.55); }
+  .cfg-card {
+    position:relative; z-index:2; background:var(--cream); width:100%; max-width:480px;
+    border-radius:22px 22px 0 0; padding:1.5rem 1.4rem 1.6rem; max-height:90svh; overflow-y:auto;
+    animation:cfgUp .25s ease;
+  }
+  @media(min-width:540px){ .cfg-modal { align-items:center; } .cfg-card { border-radius:22px; } }
+  @keyframes cfgUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .cfg-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:22px; color:var(--light-txt); cursor:pointer; line-height:1; }
+  .cfg-nome { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:600; color:var(--bordo); margin-bottom:2px; padding-right:28px; }
+  .cfg-meta { font-size:12px; color:var(--light-txt); margin-bottom:1rem; line-height:1.5; }
+  .cfg-molhos { background:rgba(200,129,58,0.12); border:1px solid rgba(200,129,58,0.3); border-radius:10px; padding:8px 12px; font-size:12px; color:var(--caramel); margin-bottom:1rem; }
+  .cfg-section-label { font-size:13px; font-weight:500; color:var(--mid-txt); margin-bottom:.6rem; }
+  .cfg-section-label small { display:block; font-weight:400; font-size:11.5px; color:var(--light-txt); margin-top:2px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1.1rem; }
+  .chip {
+    padding:8px 14px; border:1.5px solid rgba(107,15,42,0.2); border-radius:100px;
+    background:var(--bege-lt); color:var(--mid-txt); font-size:13px; cursor:pointer;
+    transition:all .15s; font-family:inherit; user-select:none;
+  }
+  .chip:hover { border-color:var(--caramel); }
+  .chip.sel { background:var(--bordo); color:#fff; border-color:var(--bordo); }
+  .chip.matcha.sel { background:#5B7A3A; border-color:#5B7A3A; }
+  .chip.disabled { opacity:.4; pointer-events:none; }
+  .cfg-unit-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--bege); }
+  .cfg-unit-nome { font-size:14px; color:var(--dark-txt); }
+  .cfg-unit-nome .matcha-tag { font-size:10.5px; color:#5B7A3A; font-weight:600; margin-left:5px; }
+  .cfg-total-pacotes { font-size:12.5px; color:var(--light-txt); margin:.8rem 0 1rem; }
+  .cfg-qtd-wrap { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:.4rem 0 1.1rem; }
+  .cfg-qtd-wrap .cfg-q-label { font-size:13px; color:var(--mid-txt); }
+  .cfg-err { font-size:12px; color:#C0392B; min-height:1em; margin-bottom:.5rem; text-align:center; }
+  .cfg-foot { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:.5rem; }
+  .cfg-valor { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:600; color:var(--bordo); }
+  .cfg-add { flex:1; max-width:62%; padding:13px; background:var(--bordo); color:var(--bege-lt); border:none; border-radius:12px; font-family:'Playfair Display',serif; font-size:1rem; font-weight:600; cursor:pointer; transition:all .2s; }
+  .cfg-add:hover { background:var(--bordo-mid); }
+  .cfg-add:disabled { opacity:.5; cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -311,7 +366,7 @@
 
 <section class="section" id="cardapio">
   <div class="label">Cardápio</div>
-  <div class="title">Escolha seus sabores</div>
+  <div class="title">Escolha sua embalagem</div>
   <div class="menu-grid" id="cookieGrid"></div>
 </section>
 
@@ -488,6 +543,8 @@
   <div>Mikies Cookies · Fortaleza, CE · Pagamento somente via Pix</div>
 </footer>
 
+<div class="cfg-modal" id="cfgModal" aria-modal="true" role="dialog"></div>
+
 <script>
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw__lfc4RMJwh-ruNyJcZO4C9QlCvuwXUebeA63zCl2tTA9_xZKjnCOQ2G9xe5OTNc/exec';
 const PIX_KEY   = 'mikiescookies@gmail.com';
@@ -639,59 +696,208 @@ function copiarCodigoPix() {
   });
 }
 
-// --- Cardápio ---
-// imgs: array de imagens — primeiro item é exibido no card. Adicione mais para suporte a galeria futura.
-const produtos = [
-  { id:'choc_branco', nome:'Chocolate Branco',   sub:'massa tradicional com gotas de choco branco',              preco:12, imgs:['images/choc_branco.webp'], active:true },
-  { id:'choc_leite',  nome:'Chocolate ao Leite', sub:'massa tradicional com gotas de choco ao leite',            preco:12, imgs:['images/choc_leite.webp'],  active:true },
-  { id:'dark',        nome:'Black',              sub:'massa cacau black com gotas de choco ao leite e amargo',   preco:12, imgs:['images/dark.webp'],        active:true },
-  { id:'red_velvet',  nome:'Red Velvet',         sub:'massa red incrível com gotas de choco branco',             preco:12, imgs:['images/red_velvet.webp'],  active:true },
-  { id:'berry',       nome:'Berry',              sub:'massa tradicional com gotas de choco branco e de morango', preco:12, imgs:['images/berry.webp'],       active:true },
-  // Produtos especiais — altere active:false → active:true para exibir no cardápio
-  // Lembre de adicionar a coluna correspondente na planilha e no GAS antes de ativar
-  // { id:'lata_namorados', nome:'Lata Namorados', sub:'Caixa especial com 12 cookies sortidos. Sob encomenda.', preco:59, imgs:['images/choc_branco.webp'], active:false, badge:'Encomenda' },
+// --- Sabores & Embalagens ---
+const SABORES = ['Chocolate ao Leite', 'Ninho', 'Red Velvet', 'Black', 'Morango', 'Matcha'];
+const MATCHA  = 'Matcha';
+
+// modo 'sabores'  → cliente marca QUAIS sabores; a cozinha distribui as unidades.
+//                   matchaExtra é cobrado UMA vez por caixa se o matcha estiver entre os escolhidos.
+// modo 'unidades' → cliente escolhe a QUANTIDADE de pacotes por sabor (cada pacote = 1 sabor);
+//                   matchaExtra é cobrado por pacote de matcha. minPacotes define o mínimo total.
+// imgs: primeiro item é exibido no card (placeholder até as fotos definitivas das embalagens).
+const embalagens = [
+  { id:'mimo',    nome:'Mikies Mimo',     sub:'A maior — feita pra dividir (ou não)',     preco:59.90, matchaExtra:5, cookies:40, pesoG:300, modo:'sabores',  maxSabores:3, molhos:false,                          imgs:['images/choc_branco.webp'], active:true },
+  { id:'dip',     nome:'Mikies Dip',      sub:'Cookies + molhos pra mergulhar',           preco:64.90, matchaExtra:4, cookies:30, pesoG:225, modo:'sabores',  maxSabores:3, molhos:['Nutela','Caramelo salgado'], imgs:['images/dark.webp'],        active:true },
+  { id:'jewel',   nome:'Mikies Jewel',    sub:'Lata-presente de um sabor só',             preco:39.90, matchaExtra:5, cookies:24, pesoG:180, modo:'sabores',  maxSabores:1, molhos:false,                          imgs:['images/red_velvet.webp'],  active:true },
+  { id:'toshare', nome:'Mikies to Share', sub:'Saquinho pra compartilhar',                preco:25.90, matchaExtra:3, cookies:20, pesoG:150, modo:'sabores',  maxSabores:1, molhos:false,                          imgs:['images/choc_leite.webp'],  active:true },
+  { id:'pocket',  nome:'Mikies Pocket',   sub:'Mini saquinho individual · mínimo 10',     preco:12.90, matchaExtra:2, cookies:6,  pesoG:40,  modo:'unidades', minPacotes:10, molhos:false,                        imgs:['images/berry.webp'],       active:true },
 ];
 
-const qtds = {};
-produtos.forEach(p => qtds[p.id] = 0);
+const carrinho = []; // itens já configurados pelo cliente
+let _uid = 0;        // id incremental por linha do carrinho
+let _cfg = null;     // estado do configurador aberto: { emb, sabores:Set, unidades:{}, qtd }
+
+// Formata valores monetários com centavos (R$ 59,90)
+function brl(v) { return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ','); }
 
 function renderGrid() {
   const grid = document.getElementById('cookieGrid');
-  grid.innerHTML = produtos.filter(p => p.active).map(p => `
-    <div class="cookie-card ${qtds[p.id]>0?'selected':''}" id="card-${p.id}">
-      <img class="card-img" src="${p.imgs[0]}" alt="${p.nome}" loading="lazy">
+  grid.innerHTML = embalagens.filter(e => e.active).map(e => {
+    const meta = e.modo === 'unidades'
+      ? `<b>${e.cookies}</b> cookies/pacote · ${e.pesoG}g<br>mínimo ${e.minPacotes} pacotes`
+      : `<b>${e.cookies}</b> cookies · ${e.pesoG}g<br>${e.maxSabores > 1 ? `até ${e.maxSabores} sabores` : '1 sabor'}`;
+    const preco = e.modo === 'unidades' ? `a partir de ${brl(e.preco)} / pacote` : `a partir de ${brl(e.preco)}`;
+    return `
+    <div class="cookie-card" id="card-${e.id}">
+      <img class="card-img" src="${e.imgs[0]}" alt="${e.nome}" loading="lazy">
       <div class="card-body">
-        ${p.badge ? `<div class="card-badge">${p.badge}</div>` : ''}
-        <div class="card-name">${p.nome}</div>
-        <div class="card-desc">${p.sub}</div>
-        <div class="card-price">R$ ${p.preco},00 / unidade</div>
-        <div class="qty-control">
-          <button class="qty-btn" aria-label="Diminuir ${p.nome}" onclick="changeQty('${p.id}',-1)">−</button>
-          <span class="qty-num" id="qty-${p.id}" aria-live="polite">${qtds[p.id]}</span>
-          <button class="qty-btn" aria-label="Aumentar ${p.nome}" onclick="changeQty('${p.id}',+1)">+</button>
-        </div>
+        ${e.molhos ? `<div class="card-badge">com molhos</div>` : ''}
+        <div class="card-name">${e.nome}</div>
+        <div class="card-desc">${e.sub}</div>
+        <div class="card-meta">${meta}</div>
+        <div class="card-price">${preco}</div>
+        <button class="btn-escolher" onclick="openConfig('${e.id}')">Escolher →</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
-function changeQty(id, delta) {
-  qtds[id] = Math.max(0, qtds[id] + delta);
-  document.getElementById('qty-'+id).textContent = qtds[id];
-  document.getElementById('card-'+id).classList.toggle('selected', qtds[id]>0);
+// --- Configurador (modal) ---
+function openConfig(id) {
+  const emb = embalagens.find(e => e.id === id);
+  if (!emb) return;
+  _cfg = { emb, sabores: new Set(), unidades: {}, qtd: 1 };
+  if (emb.modo === 'unidades') SABORES.forEach(s => _cfg.unidades[s] = 0);
+  renderConfig();
+  document.getElementById('cfgModal').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeConfig() {
+  document.getElementById('cfgModal').classList.remove('visible');
+  document.body.style.overflow = '';
+  _cfg = null;
+}
+
+function _cfgPacotes() { return Object.values(_cfg.unidades).reduce((a, b) => a + b, 0); }
+
+function _cfgValor() {
+  const e = _cfg.emb;
+  if (e.modo === 'unidades') {
+    return SABORES.reduce((s, f) => s + _cfg.unidades[f] * (e.preco + (f === MATCHA ? e.matchaExtra : 0)), 0);
+  }
+  return _cfg.qtd * (e.preco + (_cfg.sabores.has(MATCHA) ? e.matchaExtra : 0));
+}
+
+function toggleSabor(s) {
+  const e = _cfg.emb;
+  if (e.maxSabores === 1) {
+    _cfg.sabores = new Set([s]);
+  } else if (_cfg.sabores.has(s)) {
+    _cfg.sabores.delete(s);
+  } else if (_cfg.sabores.size < e.maxSabores) {
+    _cfg.sabores.add(s);
+  }
+  renderConfig();
+}
+
+function cfgQtd(d)     { _cfg.qtd = Math.max(1, _cfg.qtd + d); renderConfig(); }
+function cfgUnit(s, d) { _cfg.unidades[s] = Math.max(0, _cfg.unidades[s] + d); renderConfig(); }
+
+function renderConfig() {
+  const e = _cfg.emb;
+  const metaTxt = e.modo === 'unidades'
+    ? `${e.cookies} cookies por pacote · ${e.pesoG}g · mínimo ${e.minPacotes} pacotes`
+    : `${e.cookies} cookies · ${e.pesoG}g · ${e.maxSabores > 1 ? `até ${e.maxSabores} sabores` : '1 sabor'}`;
+
+  let body = '';
+  if (e.molhos) body += `<div class="cfg-molhos">🍫 Acompanha: ${e.molhos.join(' + ')}</div>`;
+
+  if (e.modo === 'unidades') {
+    body += `<div class="cfg-section-label">Monte seus pacotes<small>Cada pacote tem ${e.cookies} cookies de 1 sabor · mínimo ${e.minPacotes} pacotes</small></div>`;
+    body += SABORES.map(s => `
+      <div class="cfg-unit-row">
+        <span class="cfg-unit-nome">${s}${s === MATCHA ? ` <span class="matcha-tag">+${brl(e.matchaExtra)}/un</span>` : ''}</span>
+        <div class="qty-control">
+          <button class="qty-btn" aria-label="Menos ${s}" onclick="cfgUnit('${s}',-1)">−</button>
+          <span class="qty-num">${_cfg.unidades[s]}</span>
+          <button class="qty-btn" aria-label="Mais ${s}" onclick="cfgUnit('${s}',1)">+</button>
+        </div>
+      </div>`).join('');
+    const pac = _cfgPacotes();
+    body += `<div class="cfg-total-pacotes">${pac} pacote(s)${pac < e.minPacotes ? ` · faltam ${e.minPacotes - pac} para o mínimo` : ' ✓'}</div>`;
+  } else {
+    const lbl = e.maxSabores > 1
+      ? `Escolha até ${e.maxSabores} sabores<small>A cozinha distribui as ${e.cookies} unidades entre os sabores escolhidos</small>`
+      : 'Escolha o sabor';
+    body += `<div class="cfg-section-label">${lbl}</div>`;
+    body += `<div class="chips">` + SABORES.map(s => {
+      const sel  = _cfg.sabores.has(s);
+      const full = e.maxSabores > 1 && !sel && _cfg.sabores.size >= e.maxSabores;
+      return `<button type="button" class="chip${s === MATCHA ? ' matcha' : ''}${sel ? ' sel' : ''}${full ? ' disabled' : ''}" onclick="toggleSabor('${s}')">${s}${s === MATCHA ? ` (+${brl(e.matchaExtra)})` : ''}</button>`;
+    }).join('') + `</div>`;
+    body += `<div class="cfg-qtd-wrap"><span class="cfg-q-label">Quantas embalagens?</span>
+      <div class="qty-control">
+        <button class="qty-btn" aria-label="Menos" onclick="cfgQtd(-1)">−</button>
+        <span class="qty-num">${_cfg.qtd}</span>
+        <button class="qty-btn" aria-label="Mais" onclick="cfgQtd(1)">+</button>
+      </div></div>`;
+  }
+
+  const canAdd = e.modo === 'unidades' ? _cfgPacotes() >= e.minPacotes : _cfg.sabores.size >= 1;
+  document.getElementById('cfgModal').innerHTML = `
+    <div class="cfg-backdrop" onclick="closeConfig()"></div>
+    <div class="cfg-card">
+      <button class="cfg-close" onclick="closeConfig()" aria-label="Fechar">✕</button>
+      <div class="cfg-nome">${e.nome}</div>
+      <div class="cfg-meta">${metaTxt}</div>
+      ${body}
+      <div class="cfg-err" id="cfgErr"></div>
+      <div class="cfg-foot">
+        <span class="cfg-valor">${brl(_cfgValor())}</span>
+        <button class="cfg-add" onclick="addToCart()" ${canAdd ? '' : 'disabled'}>Adicionar ao pedido</button>
+      </div>
+    </div>`;
+}
+
+function _buildItem(cfg) {
+  const e = cfg.emb;
+  if (e.modo === 'unidades') {
+    const unidades = {};
+    SABORES.forEach(s => { if (cfg.unidades[s] > 0) unidades[s] = cfg.unidades[s]; });
+    const pacotes = Object.values(unidades).reduce((a, b) => a + b, 0);
+    const valor   = Object.entries(unidades).reduce((s, [f, n]) => s + n * (e.preco + (f === MATCHA ? e.matchaExtra : 0)), 0);
+    const texto   = `${e.nome} — ${Object.entries(unidades).map(([f, n]) => `${n}× ${f}`).join(', ')} (${pacotes} pacotes)`;
+    return { uid: ++_uid, id: e.id, nome: e.nome, modo: e.modo, sabores: [], unidades, qtd: 0, pacotes,
+             cookies: pacotes * e.cookies, peso: pacotes * e.pesoG, valor, temMatcha: (unidades[MATCHA] || 0) > 0, texto };
+  }
+  const sabores   = [...cfg.sabores];
+  const temMatcha = sabores.includes(MATCHA);
+  const valor     = cfg.qtd * (e.preco + (temMatcha ? e.matchaExtra : 0));
+  const texto     = `${cfg.qtd}× ${e.nome} [${sabores.join(', ')}]`;
+  return { uid: ++_uid, id: e.id, nome: e.nome, modo: e.modo, sabores, unidades: {}, qtd: cfg.qtd, pacotes: 0,
+           cookies: cfg.qtd * e.cookies, peso: cfg.qtd * e.pesoG, valor, temMatcha, texto };
+}
+
+function addToCart() {
+  const e = _cfg.emb;
+  if (e.modo === 'unidades' && _cfgPacotes() < e.minPacotes) {
+    document.getElementById('cfgErr').textContent = `Escolha pelo menos ${e.minPacotes} pacotes.`;
+    return;
+  }
+  if (e.modo === 'sabores' && _cfg.sabores.size < 1) {
+    document.getElementById('cfgErr').textContent = 'Escolha pelo menos um sabor.';
+    return;
+  }
+  carrinho.push(_buildItem(_cfg));
+  closeConfig();
   renderSummary();
-  const erroItens = document.getElementById('erro-itens');
-  if (erroItens && produtos.some(p => qtds[p.id] > 0)) erroItens.textContent = '';
+  document.getElementById('erro-itens').textContent = '';
+  document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removeItem(uid) {
+  const i = carrinho.findIndex(x => x.uid === uid);
+  if (i >= 0) carrinho.splice(i, 1);
+  renderSummary();
 }
 
 function renderSummary() {
   const box = document.getElementById('summaryBox');
-  const { itens, frete, freteLabel, total } = _getCarrinho();
-  if (!itens.length) {
-    box.innerHTML = '<div class="empty-cart">Selecione seus sabores acima para continuar ☝️</div>';
+  if (!carrinho.length) {
+    box.innerHTML = '<div class="empty-cart">Escolha uma embalagem acima para começar ☝️</div>';
     return;
   }
-  box.innerHTML = _buildSummaryHTML(itens, frete, freteLabel, total);
+  const { subtotal, frete, freteLabel, total, cookies } = _totais();
+  const freteStr  = frete > 0 ? brl(frete) : 'Grátis';
+  const freteNome = freteLabel === 'Retirada' ? 'Retirada' : 'Entrega' + (freteLabel ? ' · ' + freteLabel : '');
+  box.innerHTML = carrinho.map(i =>
+    `<div class="summary-row cart-line"><span>${_escHtml(i.texto)}</span><span>${brl(i.valor)} <button class="cart-rm" onclick="removeItem(${i.uid})" aria-label="Remover item">✕</button></span></div>`
+  ).join('')
+  + `<hr class="summary-divider">`
+  + `<div class="summary-row"><span>Subtotal · ${cookies} cookies</span><span>${brl(subtotal)}</span></div>`
+  + `<div class="summary-row summary-frete"><span>${freteNome}</span><span>${freteStr}</span></div>`
+  + `<div class="summary-total"><span>Total</span><span>${brl(total)}</span></div>`;
 }
 
 function setErro(id, msg) {
@@ -707,41 +913,51 @@ async function enviarPedido(e) {
   e.preventDefault();
   const nome           = document.getElementById('nome').value.trim();
   const whatsapp       = document.getElementById('whatsapp').value.replace(/\D/g,'');
-  const { itens, subtotal, frete, freteLabel, total, entregaSel } = _getCarrinho();
+  const { subtotal, frete, freteLabel, total, cookies, peso, entregaSel } = _totais();
   const ocasiao        = document.getElementById('ocasiao').value;
   const mensagemCartao = document.getElementById('mensagemCartao').value.trim();
   const quando         = _getQuandoLabel();
 
-  setErro('erro-nome',     nome         ? '' : 'Por favor, informe seu nome.');
+  setErro('erro-nome',     nome             ? '' : 'Por favor, informe seu nome.');
   const waOk = whatsapp.length >= 10 && whatsapp.length <= 11;
-  setErro('erro-whatsapp', waOk         ? '' : 'Informe um WhatsApp válido com DDD (10 ou 11 dígitos).');
-  setErro('erro-itens',    itens.length ? '' : 'Selecione pelo menos um cookie!');
+  setErro('erro-whatsapp', waOk             ? '' : 'Informe um WhatsApp válido com DDD (10 ou 11 dígitos).');
+  setErro('erro-itens',    carrinho.length  ? '' : 'Escolha pelo menos uma embalagem!');
 
-  if (!nome || !waOk || !itens.length) {
+  if (!nome || !waOk || !carrinho.length) {
     document.querySelector('.field-error:not(:empty)')?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
 
-  const freteStr  = frete > 0 ? `R$ ${frete},00` : 'Grátis';
+  const freteStr  = frete > 0 ? brl(frete) : 'Grátis';
   const modoLabel = entregaSel?.value === 'retirada' ? 'Retirada' : 'Entrega';
 
-  const lista        = itens.map(p => `${qtds[p.id]}x ${p.nome}`).join('\n');
+  const lista        = carrinho.map(i => `• ${i.texto}`).join('\n');
   const ocasiaoExtra = ocasiao !== 'Sem motivo especial' ? `\n\nOcasião: ${ocasiao}` : '';
   const cartaoExtra  = mensagemCartao ? `\nCartão: "${mensagemCartao}"` : '';
-  const msg = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: R$ ${subtotal},00\nFrete: ${freteStr} (${freteLabel})\nTotal: R$ ${total},00\n${modoLabel}: ${quando}${ocasiaoExtra}${cartaoExtra}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
+  const msg = `Olá! Aqui é ${nome}, quero fazer um pedido:\n\n${lista}\n\nSubtotal: ${brl(subtotal)}\nFrete: ${freteStr} (${freteLabel})\nTotal: ${brl(total)}\n${modoLabel}: ${quando}${ocasiaoExtra}${cartaoExtra}\n\nChave Pix: ${PIX_KEY}\nJá vou enviar o comprovante!`;
 
   const btn = document.getElementById('btnEnviar');
   btn.disabled = true;
   btn.textContent = 'Registrando pedido...';
 
+  const counts = { mimo:0, dip:0, jewel:0, toshare:0, pocket:0 };
+  const saboresFreq = {}; SABORES.forEach(s => saboresFreq[s] = 0);
+  carrinho.forEach(i => {
+    counts[i.id] += (i.modo === 'unidades' ? i.pacotes : i.qtd);
+    if (i.modo === 'unidades') Object.entries(i.unidades).forEach(([s, n]) => { saboresFreq[s] += n; });
+    else i.sabores.forEach(s => { saboresFreq[s] += i.qtd; });
+  });
+
   const payload = {
     nome, whatsapp, entrega: freteLabel, frete, subtotal, total,
-    quando, ocasiao, mensagemCartao,
-    choc_branco: qtds['choc_branco'],
-    choc_leite:  qtds['choc_leite'],
-    dark:        qtds['dark'],
-    red_velvet:  qtds['red_velvet'],
-    berry:       qtds['berry'],
+    cookies, peso, quando, ocasiao, mensagemCartao,
+    itensTexto: carrinho.map(i => i.texto).join('\n'),
+    counts, saboresFreq,
+    itens: carrinho.map(i => ({
+      id:i.id, nome:i.nome, modo:i.modo, sabores:i.sabores,
+      unidades:i.unidades, qtd:i.qtd, pacotes:i.pacotes,
+      cookies:i.cookies, peso:i.peso, valor:i.valor,
+    })),
   };
 
   // Confirma a gravação no Sheets via JSONP — antes o pedido era enviado às cegas (no-cors),
@@ -776,7 +992,7 @@ async function enviarPedido(e) {
     ? `<div class="summary-row" style="flex-direction:column; align-items:flex-start; gap:2px; color:var(--caramel);"><span style="font-style:normal; color:var(--mid-txt);">✉️ Cartão</span><span style="font-style:italic;">"${_escHtml(mensagemCartao)}"</span></div>` : '';
 
   document.getElementById('summaryConfirm').innerHTML =
-    _buildSummaryHTML(itens, frete, freteLabel, total, quandoHtml + ocasiaoHtml + cartaoHtml);
+    _buildSummaryHTML(quandoHtml + ocasiaoHtml + cartaoHtml);
 
   document.getElementById('waLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
   gerarQRPix(total);
@@ -865,26 +1081,29 @@ function _gasFetch(payload) {
     { method:'GET', mode:'no-cors' });
 }
 
-// Retorna estado atual do carrinho a partir do DOM
-function _getCarrinho() {
-  const itens      = produtos.filter(p => p.active && qtds[p.id] > 0);
-  const subtotal   = itens.reduce((s, p) => s + p.preco * qtds[p.id], 0);
+// Totais do carrinho a partir do estado atual (itens + frete selecionado)
+function _totais() {
+  const subtotal   = carrinho.reduce((s, i) => s + i.valor, 0);
+  const cookies    = carrinho.reduce((s, i) => s + i.cookies, 0);
+  const peso       = carrinho.reduce((s, i) => s + i.peso, 0);
   const entregaSel = document.querySelector('input[name="entrega"]:checked');
   const frete      = entregaSel ? Number(entregaSel.dataset.frete) : 0;
   const freteLabel = entregaSel ? entregaSel.dataset.label : '';
-  return { itens, subtotal, frete, freteLabel, total: subtotal + frete, entregaSel };
+  return { subtotal, cookies, peso, frete, freteLabel, total: subtotal + frete, entregaSel };
 }
 
-// Monta HTML do resumo de itens + frete + total; extras são linhas adicionais após o total
-function _buildSummaryHTML(itens, frete, freteLabel, total, extras) {
-  const freteStr = frete > 0 ? `R$ ${frete},00` : 'Grátis';
+// Resumo estático (tela de sucesso) — sem botões de remover; extras são linhas após o total
+function _buildSummaryHTML(extras) {
+  const { subtotal, frete, freteLabel, total, cookies } = _totais();
+  const freteStr  = frete > 0 ? brl(frete) : 'Grátis';
   const freteNome = freteLabel === 'Retirada' ? 'Retirada' : 'Entrega' + (freteLabel ? ' · ' + freteLabel : '');
-  return itens.map(p =>
-    `<div class="summary-row"><span>${p.nome} × ${qtds[p.id]}</span><span>R$ ${p.preco * qtds[p.id]},00</span></div>`
+  return carrinho.map(i =>
+    `<div class="summary-row"><span>${_escHtml(i.texto)}</span><span>${brl(i.valor)}</span></div>`
   ).join('')
   + `<hr class="summary-divider">`
+  + `<div class="summary-row"><span>Subtotal · ${cookies} cookies</span><span>${brl(subtotal)}</span></div>`
   + `<div class="summary-row summary-frete"><span>${freteNome}</span><span>${freteStr}</span></div>`
-  + `<div class="summary-total"><span>Total</span><span>R$ ${total},00</span></div>`
+  + `<div class="summary-total"><span>Total</span><span>${brl(total)}</span></div>`
   + (extras || '');
 }
 

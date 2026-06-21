@@ -85,6 +85,26 @@ const STATUS_PEDIDO = {
   'Cancelado':                { emoji:'🚫', descricao:'Cancelado'                  },
 };
 
+// Embalagens (ordem das colunas F–J na aba Pedidos) e sabores disponíveis.
+// Mantém paridade com os arrays `embalagens` e `SABORES` do index.html.
+const EMBALAGENS = [
+  { id:'mimo',    nome:'Mikies Mimo'     },
+  { id:'dip',     nome:'Mikies Dip'      },
+  { id:'jewel',   nome:'Mikies Jewel'    },
+  { id:'toshare', nome:'Mikies to Share' },
+  { id:'pocket',  nome:'Mikies Pocket'   },
+];
+const SABORES_LISTA = ['Chocolate ao Leite', 'Ninho', 'Red Velvet', 'Black', 'Morango', 'Matcha'];
+
+// Mapa de colunas da aba "Pedidos" (1-indexado). Linha de dados começa em 4.
+const COL = {
+  NUM:1, DATA:2, NOME:3, WA:4, ITENS:5,
+  MIMO:6, DIP:7, JEWEL:8, TOSHARE:9, POCKET:10,
+  COOKIES:11, PESO:12, SUBTOTAL:13, FRETE:14, TOTAL:15,
+  CONFIRMADO:16, STATUS_PIX:17, STATUS_PROD:18,
+  OCASIAO:19, CARTAO:20, QUANDO:21, TOKEN:22, JSON:23,
+};
+
 function responderBot(message) {
   const cfg       = getConfig();
   const topics    = getTopics();
@@ -205,7 +225,7 @@ function salvarAvaliacao(data) {
 
   const lastPed = shPed.getLastRow();
   if (lastPed < 4) return _errJson('Token inválido');
-  const tokens = shPed.getRange(4, 20, lastPed - 3, 1).getValues();
+  const tokens = shPed.getRange(4, COL.TOKEN, lastPed - 3, 1).getValues();
   let foundRow = -1;
   for (let i = 0; i < tokens.length; i++) {
     if (String(tokens[i][0]) === token) { foundRow = i + 4; break; }
@@ -215,7 +235,7 @@ function salvarAvaliacao(data) {
   const rd          = shPed.getRange(foundRow, 1, 1, 3).getValues()[0];
   const numeroPedido = rd[0];
   const nomeCliente  = rd[2];
-  shPed.getRange(foundRow, 20).setValue('USADO'); // invalida o token
+  shPed.getRange(foundRow, COL.TOKEN).setValue('USADO'); // invalida o token
 
   let sh = ss.getSheetByName('Avaliações');
   if (!sh) {
@@ -250,15 +270,15 @@ function consultarStatus(data) {
   const lastRow = sh.getLastRow();
   if (lastRow < 4) return { error:'not_found' };
 
-  const dados = sh.getRange(4, 1, lastRow - 3, 19).getValues();
+  const dados = sh.getRange(4, 1, lastRow - 3, COL.QUANDO).getValues();
   for (const row of dados) {
     if (row[0] !== numeroPedido) continue;
     if (_normalizarTelefone(row[3]) !== whatsapp) return { error:'not_found' };
     return {
       ok:         true,
-      statusPix:  row[14] || '',
-      statusProd: row[15] || '',
-      quando:     row[18] || '',
+      statusPix:  row[COL.STATUS_PIX  - 1] || '',
+      statusProd: row[COL.STATUS_PROD - 1] || '',
+      quando:     row[COL.QUANDO      - 1] || '',
       data:       row[1] instanceof Date
                     ? Utilities.formatDate(row[1], 'America/Fortaleza', 'dd/MM/yyyy')
                     : ''
@@ -278,17 +298,16 @@ function ultimaLinhaColunaA(sheet) {
 function _isDuplicado(sheet, data) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 4) return false;
-  const numWA = _normalizarTelefone(data.whatsapp);
-  const agora = new Date();
-  const dados = sheet.getRange(4, 1, lastRow - 3, 9).getValues();
+  const numWA    = _normalizarTelefone(data.whatsapp);
+  const itensTxt = String(data.itensTexto || '');
+  const agora    = new Date();
+  const dados    = sheet.getRange(4, 1, lastRow - 3, COL.ITENS).getValues();
   for (let i = dados.length - 1; i >= 0; i--) {
-    const dp = dados[i][1];
+    const dp = dados[i][COL.DATA - 1];
     if (!(dp instanceof Date)) continue;
     if (agora - dp > 5 * 60000) break;
-    if (_normalizarTelefone(dados[i][3]) !== numWA) continue;
-    const iguais = ['choc_branco','choc_leite','dark','red_velvet','berry']
-      .every((k, j) => Number(dados[i][4+j]) === Number(data[k] || 0));
-    if (iguais) return true;
+    if (_normalizarTelefone(dados[i][COL.WA - 1]) !== numWA) continue;
+    if (String(dados[i][COL.ITENS - 1]) === itensTxt) return true;
   }
   return false;
 }
@@ -304,27 +323,43 @@ function salvarPedido(data) {
     const lastRow      = Math.max(ultimaLinhaColunaA(sheet), 3);
     const newRow       = lastRow + 1;
     const numeroPedido = newRow - 3;
-    sheet.getRange(newRow, 2, 1, 8).setValues([[
-      new Date(),
-      data.nome                          || '',
-      _normalizarTelefone(data.whatsapp) || '',
-      data.choc_branco || 0,
-      data.choc_leite  || 0,
-      data.dark        || 0,
-      data.red_velvet  || 0,
-      data.berry       || 0,
+    const counts       = data.counts || {};
+    // B–U em uma escrita (Token V e JSON W são gravados à parte)
+    sheet.getRange(newRow, 2, 1, COL.QUANDO - 1).setValues([[
+      new Date(),                                   // B Data
+      data.nome                          || '',     // C Nome
+      _normalizarTelefone(data.whatsapp) || '',     // D WhatsApp
+      data.itensTexto                    || '',     // E Itens (texto)
+      Number(counts.mimo)    || 0,                  // F Mikies Mimo
+      Number(counts.dip)     || 0,                  // G Mikies Dip
+      Number(counts.jewel)   || 0,                  // H Mikies Jewel
+      Number(counts.toshare) || 0,                  // I Mikies to Share
+      Number(counts.pocket)  || 0,                  // J Mikies Pocket
+      Number(data.cookies)   || 0,                  // K Total Cookies
+      Number(data.peso)      || 0,                  // L Peso (g)
+      Number(data.subtotal)  || 0,                  // M Subtotal
+      Number(data.frete)     || 0,                  // N Frete
+      Number(data.total)     || 0,                  // O Total
+      '',                                           // P Valor Confirmado (manual)
+      'Aguardando',                                 // Q Status Pix
+      'Pix ainda não confirmado',                   // R Status Pedido
+      data.ocasiao        || 'Sem motivo especial', // S Ocasião
+      data.mensagemCartao || '',                    // T Mensagem Cartão
+      data.quando         || 'Não informado',       // U Quando
     ]]);
-    sheet.getRange(newRow, 12).setValue(Number(data.frete) || 0);
-    sheet.getRange(newRow, 14).setValue(Number(data.total) || 0); // N=Valor Confirmado; M é fórmula
-    sheet.getRange(newRow, 15).setValue('Aguardando');
-    sheet.getRange(newRow, 16).setValue('Pix ainda não confirmado');
-    sheet.getRange(newRow, 17).setValue(data.ocasiao        || 'Sem motivo especial');
-    sheet.getRange(newRow, 18).setValue(data.mensagemCartao || '');
-    sheet.getRange(newRow, 19).setValue(data.quando         || 'Não informado');
-    sheet.getRange(newRow, 2).setNumberFormat('dd/MM/yyyy HH:mm');
-    sheet.getRange(newRow, 12).setNumberFormat('"R$ "#,##0.00');
-    sheet.getRange(newRow, 14).setNumberFormat('"R$ "#,##0.00');
-    sheet.getRange(newRow, 1).setValue(numeroPedido);
+    // W: estrutura completa do pedido (usada por relatórios e CRM)
+    sheet.getRange(newRow, COL.JSON).setValue(JSON.stringify({
+      itens:       data.itens       || [],
+      saboresFreq: data.saboresFreq || {},
+      counts,
+      cookies: Number(data.cookies) || 0,
+      peso:    Number(data.peso)    || 0,
+    }));
+    sheet.getRange(newRow, COL.DATA).setNumberFormat('dd/MM/yyyy HH:mm');
+    sheet.getRange(newRow, COL.SUBTOTAL, 1, 3).setNumberFormat('"R$ "#,##0.00'); // M:O
+    sheet.getRange(newRow, COL.CONFIRMADO).setNumberFormat('"R$ "#,##0.00');     // P
+    sheet.getRange(newRow, COL.PESO).setNumberFormat('#,##0" g"');               // L
+    sheet.getRange(newRow, COL.NUM).setValue(numeroPedido);
     enviarTelegram({
       numero:         numeroPedido,
       nome:           data.nome,
@@ -333,14 +368,12 @@ function salvarPedido(data) {
       frete:          data.frete,
       subtotal:       data.subtotal,
       total:          data.total,
+      cookies:        data.cookies,
+      peso:           data.peso,
       quando:         data.quando         || 'Não informado',
       ocasiao:        data.ocasiao        || 'Sem motivo especial',
       mensagemCartao: data.mensagemCartao || '',
-      choc_branco:    data.choc_branco,
-      choc_leite:     data.choc_leite,
-      dark:           data.dark,
-      red_velvet:     data.red_velvet,
-      berry:          data.berry,
+      itensTexto:     data.itensTexto     || '',
       pedidosAnteriores: _contarPedidosAnteriores(sheet, data.whatsapp, newRow),
     });
     return { ok:true, pedido:numeroPedido };
@@ -376,18 +409,24 @@ function avisarPagamento(data) {
 function buscarPedido(sheet, numero) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 4) return null;
-  const dados = sheet.getRange(4, 1, lastRow - 3, 19).getValues();
+  const dados = sheet.getRange(4, 1, lastRow - 3, COL.JSON).getValues();
   for (const row of dados) {
     if (row[0] !== numero) continue;
     return {
-      nome:           row[2],  whatsapp:  row[3],
-      choc_branco:    row[4],  choc_leite: row[5],
-      dark:           row[6],  red_velvet: row[7],  berry: row[8],
-      subtotal:       row[10], frete:      row[11],
-      total:          row[13], // N=Valor Confirmado
-      statusPix:      row[14], statusProd:     row[15],
-      ocasiao:        row[16] || '', mensagemCartao: row[17] || '',
-      quando:         row[18] || '',
+      numero:         row[COL.NUM       - 1],
+      nome:           row[COL.NOME      - 1],
+      whatsapp:       row[COL.WA        - 1],
+      itensTexto:     row[COL.ITENS     - 1] || '',
+      cookies:        row[COL.COOKIES   - 1],
+      peso:           row[COL.PESO      - 1],
+      subtotal:       row[COL.SUBTOTAL  - 1],
+      frete:          row[COL.FRETE     - 1],
+      total:          row[COL.TOTAL     - 1],
+      statusPix:      row[COL.STATUS_PIX  - 1],
+      statusProd:     row[COL.STATUS_PROD - 1],
+      ocasiao:        row[COL.OCASIAO   - 1] || '',
+      mensagemCartao: row[COL.CARTAO    - 1] || '',
+      quando:         row[COL.QUANDO    - 1] || '',
     };
   }
   return null;
@@ -491,7 +530,7 @@ function _enviarImagemAgradecimento(cfg, pedido, threadId) {
       : `${_site}?avaliacao&p=${pedido.numeroPedido}&n=${encodeURIComponent(pedido.nomeCliente||'')}`;
     ap.replaceAllText('{{nome}}',     pedido.nomeCliente   || '');
     ap.replaceAllText('{{numero}}',   String(pedido.numeroPedido));
-    ap.replaceAllText('{{itens}}',    _itensTexto(pedido.itens || {}));
+    ap.replaceAllText('{{itens}}',    _itensTexto(pedido));
     ap.replaceAllText('{{form_url}}', formUrl);
     ap.saveAndClose();
     const resp = UrlFetchApp.fetch(
@@ -524,14 +563,14 @@ function onEditInstalavel(e) {
   if (sheet.getName() !== 'Pedidos') return;
   const col = e.range.getColumn();
   const row = e.range.getRow();
-  if (row < 4 || (col !== 15 && col !== 16)) return;
+  if (row < 4 || (col !== COL.STATUS_PIX && col !== COL.STATUS_PROD)) return;
   const novoValor = e.value;
   if (!novoValor || novoValor.trim() === '') return;
-  const numeroPedido = sheet.getRange(row, 1).getValue();
-  const nomeCliente  = sheet.getRange(row, 3).getValue();
-  const whatsapp     = sheet.getRange(row, 4).getValue();
+  const numeroPedido = sheet.getRange(row, COL.NUM).getValue();
+  const nomeCliente  = sheet.getRange(row, COL.NOME).getValue();
+  const whatsapp     = sheet.getRange(row, COL.WA).getValue();
   if (!numeroPedido || !nomeCliente) return;
-  const mapa = col === 15 ? STATUS_PIX : STATUS_PEDIDO;
+  const mapa = col === COL.STATUS_PIX ? STATUS_PIX : STATUS_PEDIDO;
   if (!mapa[novoValor]) return;
 
   // Limpa alerta existente para permitir re-alerta se o pedido ficar parado de novo
@@ -540,14 +579,14 @@ function onEditInstalavel(e) {
 
   const cfg    = getConfig();
   const topics = getTopics();
-  const label  = col === 15 ? 'Pagamento' : 'Produção';
+  const label  = col === COL.STATUS_PIX ? 'Pagamento' : 'Produção';
   const info   = mapa[novoValor];
 
   // Gera token de avaliação antes de montar a mensagem WA (necessário para Entregue)
   let avalToken = null;
-  if (col === 16 && novoValor === 'Entregue') {
+  if (col === COL.STATUS_PROD && novoValor === 'Entregue') {
     avalToken = Utilities.getUuid().replace(/-/g, '').slice(0, 14);
-    sheet.getRange(row, 20).setValue(avalToken); // col T
+    sheet.getRange(row, COL.TOKEN).setValue(avalToken); // col V
   }
 
   const msgWA = _msgWAStatus(novoValor, numeroPedido, nomeCliente, avalToken);
@@ -560,11 +599,10 @@ function onEditInstalavel(e) {
     null, null, waUrl ? [[{ text:`📲 Avisar ${nomeCliente}`, url:waUrl }]] : null, topics.STATUS
   );
 
-  if (col === 16 && novoValor === 'Entregue') {
-    const rd = sheet.getRange(row, 5, 1, 5).getValues()[0];
+  if (col === COL.STATUS_PROD && novoValor === 'Entregue') {
+    const itensTexto = sheet.getRange(row, COL.ITENS).getValue();
     _enviarImagemAgradecimento(cfg, {
-      numeroPedido, nomeCliente, whatsapp, avalToken,
-      itens: { choc_branco:rd[0]||0, choc_leite:rd[1]||0, dark:rd[2]||0, red_velvet:rd[3]||0, berry:rd[4]||0 },
+      numeroPedido, nomeCliente, whatsapp, avalToken, itensTexto,
     }, topics.STATUS);
   }
 }
@@ -589,16 +627,16 @@ function verificarPedidosParados() {
   const lastRow = sheet.getLastRow();
   if (lastRow < 4) return;
   const agora           = new Date();
-  const dados           = sheet.getRange(4, 1, lastRow - 3, 19).getValues();
+  const dados           = sheet.getRange(4, 1, lastRow - 3, COL.QUANDO).getValues();
   const alertasEnviados = _getAlertasEnviados();
   const alertasNovos    = [];
   for (const row of dados) {
-    const numeroPedido = row[0];
-    const dataPedido   = row[1];
-    const nomeCliente  = row[2];
-    const whatsapp     = row[3];
-    const statusPix    = row[14];
-    const statusProd   = row[15];
+    const numeroPedido = row[COL.NUM  - 1];
+    const dataPedido   = row[COL.DATA - 1];
+    const nomeCliente  = row[COL.NOME - 1];
+    const whatsapp     = row[COL.WA   - 1];
+    const statusPix    = row[COL.STATUS_PIX  - 1];
+    const statusProd   = row[COL.STATUS_PROD - 1];
     if (!numeroPedido || !nomeCliente) continue;
     if (statusProd === 'Entregue' || statusProd === 'Cancelado' || statusPix === 'Cancelado') continue;
     const statusEmAlerta = [];
@@ -610,7 +648,7 @@ function verificarPedidosParados() {
     const statusKey = `${statusPix}|${statusProd}`;
     if (alertasEnviados[numeroPedido] === statusKey) continue;
     const h = Math.floor(mins / 60), m = Math.floor(mins % 60);
-    const quando = row[18] || '';
+    const quando = row[COL.QUANDO - 1] || '';
     alertasNovos.push({
       numeroPedido, nomeCliente, statusEmAlerta, statusKey, quando,
       prioridade: _prioridadeQuando(quando),
@@ -689,29 +727,43 @@ function _relatorio(inicio, fim, titulo, chatId, messageId, threadId) {
     _postTelegram(cfg, `📊 ${titulo}\n\nNenhum pedido.`, chatId, messageId, null, thread);
     return;
   }
-  const dados   = sheet.getRange(4, 1, lastRow - 3, 16).getValues();
-  const nomes   = { choc_branco:'Chocolate Branco', choc_leite:'Chocolate ao Leite', dark:'Dark', red_velvet:'Red Velvet', berry:'Berry' };
-  const sabores = Object.fromEntries(Object.keys(nomes).map(k => [k, 0]));
-  let totalGeral = 0, qtd = 0;
+  const dados   = sheet.getRange(4, 1, lastRow - 3, COL.JSON).getValues();
+  const embTot  = {}; EMBALAGENS.forEach(e => embTot[e.id] = 0);
+  const sabores = {}; SABORES_LISTA.forEach(s => sabores[s] = 0);
+  let totalGeral = 0, qtd = 0, totalCookies = 0;
   for (const row of dados) {
-    const dp = row[1];
-    if (!(dp instanceof Date) || dp < inicio || dp > fim || row[15] === 'Cancelado') continue;
+    const dp = row[COL.DATA - 1];
+    if (!(dp instanceof Date) || dp < inicio || dp > fim || row[COL.STATUS_PROD - 1] === 'Cancelado') continue;
     qtd++;
-    totalGeral += Number(row[13]) || Number(row[12]) || Number(row[10]) || 0;
-    Object.keys(sabores).forEach((k, i) => { sabores[k] += Number(row[4+i]) || 0; });
+    totalGeral   += Number(row[COL.TOTAL - 1]) || Number(row[COL.SUBTOTAL - 1]) || 0;
+    totalCookies += Number(row[COL.COOKIES - 1]) || 0;
+    EMBALAGENS.forEach((e, i) => { embTot[e.id] += Number(row[COL.MIMO - 1 + i]) || 0; });
+    try {
+      const j = JSON.parse(row[COL.JSON - 1] || '{}');
+      if (j.saboresFreq) Object.entries(j.saboresFreq).forEach(([s, n]) => {
+        if (sabores[s] != null) sabores[s] += Number(n) || 0;
+      });
+    } catch (_) {}
   }
   if (!qtd) {
     _postTelegram(cfg, `📊 ${titulo}\n\nNenhum pedido no período.`, chatId, messageId, null, thread);
     return;
   }
-  const linhas = Object.entries(sabores).filter(([,v]) => v > 0).map(([k,v]) => `• ${nomes[k]}: ${v} un`).join('\n');
+  const linhasEmb = EMBALAGENS.filter(e => embTot[e.id] > 0)
+    .map(e => `• ${e.nome}: ${embTot[e.id]}`).join('\n') || '—';
+  const linhasSab = SABORES_LISTA.filter(s => sabores[s] > 0)
+    .sort((a, b) => sabores[b] - sabores[a])
+    .map(s => `• ${s}: ${sabores[s]}`).join('\n') || '—';
   _postTelegram(cfg,
 `📊 ${titulo}
 
-🛒 Pedidos: ${qtd}
+🛒 Pedidos: ${qtd} · 🍪 ${totalCookies} cookies
 
-🍪 Cookies vendidos:
-${linhas}
+📦 Embalagens vendidas:
+${linhasEmb}
+
+🎯 Sabores (frequência de escolha):
+${linhasSab}
 
 💰 Total: R$ ${Number(totalGeral).toFixed(2).replace('.', ',')}`,
     chatId, messageId, null, thread
@@ -737,35 +789,37 @@ function consolidarClientes() {
   const lastRowP = shPedidos.getLastRow();
   if (lastRowP < 4) return;
 
-  const pedidos = shPedidos.getRange(4, 1, lastRowP - 3, 19).getValues();
+  const pedidos = shPedidos.getRange(4, 1, lastRowP - 3, COL.JSON).getValues();
   const mapa    = {};
 
   for (const r of pedidos) {
-    if (!r[0] || !r[2] || !r[3]) continue;
-    if (r[15] === 'Cancelado' || r[14] === 'Cancelado') continue;
-    const tel = _normalizarTelefone(r[3]);
+    if (!r[COL.NUM - 1] || !r[COL.NOME - 1] || !r[COL.WA - 1]) continue;
+    if (r[COL.STATUS_PROD - 1] === 'Cancelado' || r[COL.STATUS_PIX - 1] === 'Cancelado') continue;
+    const tel = _normalizarTelefone(r[COL.WA - 1]);
     if (tel.length < 10) continue;
     if (!mapa[tel]) {
       mapa[tel] = {
-        tel, nome: r[2], count: 0, total: 0, primeira: null, ultima: null,
-        sabores: { choc_branco:0, choc_leite:0, dark:0, red_velvet:0, berry:0 },
-        ocasioes: new Set(),
+        tel, nome: r[COL.NOME - 1], count: 0, total: 0, primeira: null, ultima: null,
+        sabores: {}, ocasioes: new Set(),
       };
     }
     const c = mapa[tel];
-    c.nome  = r[2];
+    c.nome  = r[COL.NOME - 1];
     c.count++;
-    c.total += Number(r[13]) || Number(r[12]) || Number(r[10]) || 0;
-    if (r[1] instanceof Date) {
-      if (!c.primeira || r[1] < c.primeira) c.primeira = r[1];
-      if (!c.ultima   || r[1] > c.ultima)   c.ultima   = r[1];
+    c.total += Number(r[COL.TOTAL - 1]) || Number(r[COL.SUBTOTAL - 1]) || 0;
+    const dp = r[COL.DATA - 1];
+    if (dp instanceof Date) {
+      if (!c.primeira || dp < c.primeira) c.primeira = dp;
+      if (!c.ultima   || dp > c.ultima)   c.ultima   = dp;
     }
-    c.sabores.choc_branco += Number(r[4]) || 0;
-    c.sabores.choc_leite  += Number(r[5]) || 0;
-    c.sabores.dark        += Number(r[6]) || 0;
-    c.sabores.red_velvet  += Number(r[7]) || 0;
-    c.sabores.berry       += Number(r[8]) || 0;
-    if (r[16] && r[16] !== 'Sem motivo especial') c.ocasioes.add(r[16]);
+    try {
+      const j = JSON.parse(r[COL.JSON - 1] || '{}');
+      if (j.saboresFreq) Object.entries(j.saboresFreq).forEach(([s, n]) => {
+        c.sabores[s] = (c.sabores[s] || 0) + (Number(n) || 0);
+      });
+    } catch (_) {}
+    const ocas = r[COL.OCASIAO - 1];
+    if (ocas && ocas !== 'Sem motivo especial') c.ocasioes.add(ocas);
   }
 
   // Índice dos clientes já existentes na aba (para upsert)
@@ -778,20 +832,10 @@ function consolidarClientes() {
     });
   }
 
-  const NOMES = {
-    choc_branco:'Chocolate Branco', choc_leite:'Chocolate ao Leite',
-    dark:'Dark', red_velvet:'Red Velvet', berry:'Berry',
-  };
-  const CURTOS = {
-    choc_branco:'Branco', choc_leite:'Leite', dark:'Dark',
-    red_velvet:'Red Velvet', berry:'Berry',
-  };
-
   for (const c of Object.values(mapa)) {
-    const entries    = Object.entries(c.sabores).sort((a, b) => b[1] - a[1]);
-    const saborFav   = entries[0][1] > 0 ? NOMES[entries[0][0]] : '—';
-    const saborDetalhe = entries.filter(([,v]) => v > 0)
-      .map(([k,v]) => `${CURTOS[k]}×${v}`).join(', ') || '—';
+    const entries    = Object.entries(c.sabores).filter(([,v]) => v > 0).sort((a, b) => b[1] - a[1]);
+    const saborFav   = entries.length ? entries[0][0] : '—';
+    const saborDetalhe = entries.map(([k,v]) => `${k}×${v}`).join(', ') || '—';
     const ticket   = c.count > 0 ? c.total / c.count : 0;
     const ocasioes = [...c.ocasioes].join(', ') || '—';
 
@@ -856,17 +900,18 @@ function _listarPendentes(cfg, chatId, messageId, originThreadId) {
   const destThread = topics.STATUS;
   const sheet   = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Pedidos');
   const lastRow = sheet.getLastRow();
-  const dados     = lastRow >= 4 ? sheet.getRange(4, 1, lastRow - 3, 19).getValues() : [];
+  const dados     = lastRow >= 4 ? sheet.getRange(4, 1, lastRow - 3, COL.QUANDO).getValues() : [];
+  const P = COL.STATUS_PROD - 1, X = COL.STATUS_PIX - 1, Q = COL.QUANDO - 1;
   const pendentes = dados
-    .filter(row => row[0] && row[2] && row[15] !== 'Entregue' && row[15] !== 'Cancelado' && row[14] !== 'Cancelado')
-    .sort((a, b) => _prioridadeQuando(a[18]) - _prioridadeQuando(b[18]));
+    .filter(row => row[0] && row[2] && row[P] !== 'Entregue' && row[P] !== 'Cancelado' && row[X] !== 'Cancelado')
+    .sort((a, b) => _prioridadeQuando(a[Q]) - _prioridadeQuando(b[Q]));
   const texto = pendentes.length === 0
     ? '✅ Nenhum pedido pendente.'
     : `📋 PEDIDOS PENDENTES (${pendentes.length})\n\n` + pendentes.map(row => {
-        const urgente = (row[18]||'').startsWith('O quanto antes') ? '🔴 ' : '';
-        const spix    = STATUS_PIX[row[14]]    || { emoji:'❓' };
-        const sprod   = STATUS_PEDIDO[row[15]] || { emoji:'❓' };
-        return `${urgente}#${row[0]} · ${row[2]}\n⏰ ${row[18]||'Não informado'} · Pix ${spix.emoji} · Prod ${sprod.emoji}`;
+        const urgente = (row[Q]||'').startsWith('O quanto antes') ? '🔴 ' : '';
+        const spix    = STATUS_PIX[row[X]]    || { emoji:'❓' };
+        const sprod   = STATUS_PEDIDO[row[P]] || { emoji:'❓' };
+        return `${urgente}#${row[0]} · ${row[2]}\n⏰ ${row[Q]||'Não informado'} · Pix ${spix.emoji} · Prod ${sprod.emoji}`;
       }).join('\n\n');
   _postTelegram(cfg, texto, null, null, null, destThread);
   // Se o comando veio de outro tópico, confirma com link
@@ -941,15 +986,13 @@ function _fmt(v) {
   return Number(v || 0).toFixed(2).replace('.', ',');
 }
 
+// Texto legível dos itens. `obj.itensTexto` já vem pronto (1 embalagem por linha).
+// Com `prefixo`, cada linha recebe o marcador (ex.: '•' para Telegram, '-' para WhatsApp).
 function _itensTexto(obj, prefixo) {
-  const p = prefixo || '•';
-  return [
-    obj.choc_branco > 0 && `${p} ${obj.choc_branco}× Chocolate Branco`,
-    obj.choc_leite  > 0 && `${p} ${obj.choc_leite}× Chocolate ao Leite`,
-    obj.dark        > 0 && `${p} ${obj.dark}× Dark`,
-    obj.red_velvet  > 0 && `${p} ${obj.red_velvet}× Red Velvet`,
-    obj.berry       > 0 && `${p} ${obj.berry}× Berry`,
-  ].filter(Boolean).join('\n') || 'Sem itens';
+  const txt = String((obj && obj.itensTexto) || '').trim();
+  if (!txt) return 'Sem itens';
+  if (!prefixo) return txt;
+  return txt.split('\n').map(l => `${prefixo} ${l}`).join('\n');
 }
 
 // Normaliza telefone: remove não-dígitos e prefixo 55 se resultar em 11+ dígitos
