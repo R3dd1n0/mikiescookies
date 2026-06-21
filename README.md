@@ -46,7 +46,7 @@ Chocolate ao Leite · Ninho · Red Velvet · Black · Morango · Matcha
 - Google Sheets (banco de dados de pedidos)
 - Google Slides (templates de imagem para Telegram)
 - Telegram Bot API
-- Hospedagem: [GitHub Pages](https://r3dd1n0.github.io/mikiescookies/)
+- Hospedagem: [GitHub Pages](https://mikies.com.br/) (domínio custom via `CNAME`)
 
 ## Estrutura de arquivos
 

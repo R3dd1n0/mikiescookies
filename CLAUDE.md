@@ -106,7 +106,7 @@ Para adicionar uma embalagem: incluir no `embalagens[]` (front) e no `EMBALAGENS
 ## Chave Pix e contatos
 - Pix: `mikiescookies@gmail.com`
 - WhatsApp da loja: `5585920080270`
-- Site: `https://r3dd1n0.github.io/mikiescookies/`
+- Site: `https://mikies.com.br/` (GitHub Pages com domínio custom; CNAME no repo)
 
 ## Comandos do bot Telegram
 `/pedido`, `/status`, `/relatorio`, `/pendentes`, `/consultarpedido`

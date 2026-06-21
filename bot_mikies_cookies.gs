@@ -708,7 +708,7 @@ function _enviarImagemAgradecimento(cfg, pedido, threadId) {
   try {
     copiaId = DriveApp.getFileById(templateId).makeCopy(`tmp_obrigado_${pedido.numeroPedido}`).getId();
     const ap      = SlidesApp.openById(copiaId);
-    const _site   = 'https://r3dd1n0.github.io/mikiescookies/';
+    const _site   = 'https://mikies.com.br/';
     const formUrl = pedido.avalToken
       ? `${_site}?avaliacao&t=${pedido.avalToken}&p=${pedido.numeroPedido}&n=${encodeURIComponent(pedido.nomeCliente||'')}`
       : `${_site}?avaliacao&p=${pedido.numeroPedido}&n=${encodeURIComponent(pedido.nomeCliente||'')}`;
@@ -1123,7 +1123,7 @@ function _msgWAStatus(status, numero, nome, token) {
     'Pronto':
       `Olá ${nome}! Pedido #${numero} pronto! Vamos combinar a entrega? Quando fica melhor para você?`,
     'Entregue': (() => {
-      const _s   = 'https://r3dd1n0.github.io/mikiescookies/';
+      const _s   = 'https://mikies.com.br/';
       const avalUrl = token
         ? `${_s}?avaliacao&t=${token}&p=${numero}&n=${encodeURIComponent(nome)}`
         : `${_s}?avaliacao&p=${numero}&n=${encodeURIComponent(nome)}`;
