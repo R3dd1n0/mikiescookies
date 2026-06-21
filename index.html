@@ -451,14 +451,7 @@
 
     <div class="form-group" style="margin-top:1.25rem;">
       <label for="ocasiao">Qual é a ocasião? 🎊</label>
-      <select id="ocasiao" class="form-select">
-        <option value="Sem motivo especial">🍪 Sem motivo especial</option>
-        <option value="Aniversário">🎂 Aniversário</option>
-        <option value="Presentinho">🎁 Presentinho</option>
-        <option value="Dia dos Namorados">💕 Dia dos Namorados</option>
-        <option value="Formatura">🎓 Formatura</option>
-        <option value="Outro">🎊 Outro</option>
-      </select>
+      <select id="ocasiao" class="form-select"></select>
     </div>
 
     <div class="form-group">
@@ -655,6 +648,37 @@ function _getQuandoLabel() {
     return `Agendado · ${d}/${m}/${y}`;
   }
   return map[sel.value] || 'Não informado';
+}
+
+// --- Ocasiões ---
+// Ocasiões com data fixa {mes,dia} só aparecem na janela [1 mês antes → 2 dias depois].
+// As demais aparecem sempre. Para adicionar sazonais (Dia das Mães, Natal…), inclua {mes,dia}.
+const OCASIOES = [
+  { v:'Sem motivo especial', emoji:'🍪' },
+  { v:'Aniversário',         emoji:'🎂' },
+  { v:'Presentinho',         emoji:'🎁' },
+  { v:'Dia dos Namorados',   emoji:'💕', mes:6, dia:12 },
+  { v:'Formatura',           emoji:'🎓' },
+  { v:'Outro',               emoji:'🎊' },
+];
+
+// Está na janela [data - 1 mês, data + 2 dias]? Testa anos adjacentes p/ cobrir virada de ano.
+function _ocasiaoAtiva(mes, dia) {
+  const { ft } = _getHoraFtz();
+  const hoje = new Date(ft.getFullYear(), ft.getMonth(), ft.getDate());
+  for (const y of [ft.getFullYear() - 1, ft.getFullYear(), ft.getFullYear() + 1]) {
+    const abre  = new Date(y, mes - 2, dia);     // 1 mês antes
+    const fecha = new Date(y, mes - 1, dia + 2); // 2 dias depois
+    if (hoje >= abre && hoje <= fecha) return true;
+  }
+  return false;
+}
+
+function renderOcasioes() {
+  document.getElementById('ocasiao').innerHTML = OCASIOES
+    .filter(o => !o.mes || _ocasiaoAtiva(o.mes, o.dia))
+    .map(o => `<option value="${o.v}">${o.emoji} ${o.v}</option>`)
+    .join('');
 }
 
 // --- PIX EMV ---
@@ -1072,6 +1096,7 @@ document.getElementById('whatsapp').addEventListener('input', function() { _apli
 
 renderSabores();
 renderGrid();
+renderOcasioes();
 renderSlots();
 // Garante que clicar em qualquer parte do input de data abre o picker (Chromium desktop)
 document.getElementById('quandoData').addEventListener('click', function() {
