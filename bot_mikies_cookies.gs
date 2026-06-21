@@ -35,8 +35,10 @@ function criarTriggers() {
   Logger.log('Triggers criados com sucesso.');
 }
 
-// Execute UMA vez para preparar a aba "Pedidos" no layout novo (A–W).
-// ⚠️ APAGA todo o conteúdo da aba — use apenas quando os dados são de teste.
+// Execute UMA vez para preparar a aba "Pedidos" no layout novo (A–W) e
+// zerar os dados de teste de "Avaliações".
+// ⚠️ APAGA todo o conteúdo de "Pedidos" e os dados de "Avaliações" —
+// use apenas enquanto os dados forem de teste.
 // Cria título, cabeçalho, formatos, dropdowns de status e esconde a coluna JSON.
 function prepararAbaPedidos() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -79,8 +81,16 @@ function prepararAbaPedidos() {
   sh.getRange(4, COL.STATUS_PIX, rows, 1).setDataValidation(vPix);
   sh.getRange(4, COL.STATUS_PROD, rows, 1).setDataValidation(vProd);
 
+  // Zera os dados de teste da aba "Avaliações" (mantém o cabeçalho), se existir
+  const shAval = ss.getSheetByName('Avaliações');
+  let avalLimpas = 0;
+  if (shAval && shAval.getLastRow() > 1) {
+    avalLimpas = shAval.getLastRow() - 1;
+    shAval.getRange(2, 1, avalLimpas, shAval.getLastColumn()).clearContent();
+  }
+
   SpreadsheetApp.flush();
-  Logger.log('Aba "Pedidos" preparada no layout A–W. Dados removidos.');
+  Logger.log(`Pronto: "Pedidos" preparada no layout A–W e ${avalLimpas} avaliação(ões) de teste removida(s).`);
 }
 
 // Execute UMA vez para fechar os tópicos do grupo Telegram para membros comuns
