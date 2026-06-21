@@ -89,8 +89,50 @@ function prepararAbaPedidos() {
     shAval.getRange(2, 1, avalLimpas, shAval.getLastColumn()).clearContent();
   }
 
+  prepararAbaProdutos(); // aba de referência (catálogo atual)
+
   SpreadsheetApp.flush();
-  Logger.log(`Pronto: "Pedidos" preparada no layout A–W e ${avalLimpas} avaliação(ões) de teste removida(s).`);
+  Logger.log(`Pronto: "Pedidos" no layout A–W, ${avalLimpas} avaliação(ões) removida(s) e "Produtos" atualizada.`);
+}
+
+// Limpa e preenche a aba "Produtos" com o catálogo atual (embalagens + sabores).
+// É apenas REFERÊNCIA visual — o site/bot NÃO lê esta aba. Pode ser chamada
+// sozinha sempre que os preços/embalagens mudarem.
+function prepararAbaProdutos() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName('Produtos') || ss.insertSheet('Produtos');
+
+  const full = sh.getRange(1, 1, sh.getMaxRows(), Math.max(sh.getMaxColumns(), 8));
+  full.clearContent();
+  full.clearFormat();
+  full.clearDataValidations();
+  sh.setFrozenRows(0);
+
+  const headers = ['Embalagem', 'Preço base', 'Acréscimo Matcha', 'Cookies', 'Peso (g)', 'Como pede', 'Sabores', 'Molhos'];
+  sh.getRange(1, 1).setValue('PRODUTOS — Mikies Cookies (referência · não integrada)')
+    .setFontWeight('bold').setFontSize(12);
+  sh.getRange(3, 1, 1, headers.length).setValues([headers])
+    .setFontWeight('bold').setBackground('#6B0F2A').setFontColor('#FFFFFF');
+  sh.setFrozenRows(3);
+
+  const linhas = EMBALAGENS.map(e => [
+    e.nome, e.preco, e.matchaExtra, e.cookies, e.pesoG,
+    e.modo === 'unidades' ? 'qtd por sabor (pacote)' : 'marca os sabores',
+    e.limite, e.molhos || '—',
+  ]);
+  sh.getRange(4, 1, linhas.length, headers.length).setValues(linhas);
+  sh.getRange(4, 2, linhas.length, 2).setNumberFormat('"R$ "#,##0.00'); // preço + matcha
+  sh.getRange(4, 5, linhas.length, 1).setNumberFormat('#,##0" g"');
+
+  // Lista de sabores logo abaixo da tabela
+  const base = 4 + linhas.length + 2;
+  sh.getRange(base, 1).setValue('Sabores disponíveis').setFontWeight('bold');
+  SABORES_LISTA.forEach((s, i) =>
+    sh.getRange(base + 1 + i, 1).setValue(s === 'Matcha' ? `${s} (premium · acréscimo)` : s));
+
+  sh.autoResizeColumns(1, headers.length);
+  SpreadsheetApp.flush();
+  Logger.log('Aba "Produtos" atualizada com o catálogo atual.');
 }
 
 // Execute UMA vez para fechar os tópicos do grupo Telegram para membros comuns
@@ -145,12 +187,13 @@ const STATUS_PEDIDO = {
 
 // Embalagens (ordem das colunas F–J na aba Pedidos) e sabores disponíveis.
 // Mantém paridade com os arrays `embalagens` e `SABORES` do index.html.
+// Os campos extras (preço etc.) só alimentam a aba "Produtos" de referência.
 const EMBALAGENS = [
-  { id:'mimo',    nome:'Mikies Mimo'     },
-  { id:'dip',     nome:'Mikies Dip'      },
-  { id:'jewel',   nome:'Mikies Jewel'    },
-  { id:'toshare', nome:'Mikies to Share' },
-  { id:'pocket',  nome:'Mikies Pocket'   },
+  { id:'mimo',    nome:'Mikies Mimo',     preco:59.90, matchaExtra:5, cookies:40, pesoG:300, modo:'sabores',  limite:'até 3 sabores',                     molhos:'' },
+  { id:'dip',     nome:'Mikies Dip',      preco:64.90, matchaExtra:4, cookies:30, pesoG:225, modo:'sabores',  limite:'até 3 sabores',                     molhos:'Nutela + Caramelo salgado' },
+  { id:'jewel',   nome:'Mikies Jewel',    preco:39.90, matchaExtra:5, cookies:24, pesoG:180, modo:'sabores',  limite:'1 sabor',                           molhos:'' },
+  { id:'toshare', nome:'Mikies to Share', preco:25.90, matchaExtra:3, cookies:20, pesoG:150, modo:'sabores',  limite:'1 sabor',                           molhos:'' },
+  { id:'pocket',  nome:'Mikies Pocket',   preco:12.90, matchaExtra:2, cookies:6,  pesoG:40,  modo:'unidades', limite:'1 sabor/pacote · mín. 10 pacotes',  molhos:'' },
 ];
 const SABORES_LISTA = ['Chocolate ao Leite', 'Ninho', 'Red Velvet', 'Black', 'Morango', 'Matcha'];
 
