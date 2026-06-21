@@ -434,7 +434,7 @@ function salvarAvaliacao(data) {
     numeroPedido || '',
     nomeCliente  || '',
     (nota >= 1 && nota <= 5) ? nota : '',
-    String(data.comentario || '').slice(0, 300)
+    _txtCelula(String(data.comentario || '').slice(0, 300))
   ]);
   sh.getRange(sh.getLastRow(), 1).setNumberFormat('dd/MM/yyyy HH:mm');
   return ContentService
@@ -509,9 +509,9 @@ function salvarPedido(data) {
     // B–U em uma escrita (Token V e JSON W são gravados à parte)
     sheet.getRange(newRow, 2, 1, COL.QUANDO - 1).setValues([[
       new Date(),                                   // B Data
-      data.nome                          || '',     // C Nome
+      _txtCelula(data.nome),                        // C Nome
       _normalizarTelefone(data.whatsapp) || '',     // D WhatsApp
-      data.itensTexto                    || '',     // E Itens (texto)
+      _txtCelula(data.itensTexto),                  // E Itens (texto)
       Number(counts.mimo)    || 0,                  // F Mikies Mimo
       Number(counts.dip)     || 0,                  // G Mikies Dip
       Number(counts.jewel)   || 0,                  // H Mikies Jewel
@@ -525,9 +525,9 @@ function salvarPedido(data) {
       '',                                           // P Valor Confirmado (manual)
       'Aguardando',                                 // Q Status Pix
       'Pix ainda não confirmado',                   // R Status Pedido
-      data.ocasiao        || 'Sem motivo especial', // S Ocasião
-      data.mensagemCartao || '',                    // T Mensagem Cartão
-      data.quando         || 'Não informado',       // U Quando
+      _txtCelula(data.ocasiao || 'Sem motivo especial'), // S Ocasião
+      _txtCelula(data.mensagemCartao),                   // T Mensagem Cartão
+      data.quando         || 'Não informado',            // U Quando
     ]]);
     // W: estrutura completa do pedido (usada por relatórios e CRM)
     sheet.getRange(newRow, COL.JSON).setValue(JSON.stringify({
@@ -1169,6 +1169,13 @@ function _foraDoHorario() {
 
 function _fmt(v) {
   return Number(v || 0).toFixed(2).replace('.', ',');
+}
+
+// Neutraliza injeção de fórmula em campos de texto livre gravados na planilha:
+// se o valor começa com = + - @ (ou TAB/CR), prefixa apóstrofo (força texto no Sheets).
+function _txtCelula(v) {
+  const s = String(v == null ? '' : v);
+  return /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
 }
 
 // Texto legível dos itens. `obj.itensTexto` já vem pronto (1 embalagem por linha).
