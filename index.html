@@ -98,7 +98,8 @@
   .menu-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
   .cookie-card {
     background:var(--bege-lt); border:1.5px solid transparent;
-    border-radius:18px; overflow:hidden; cursor:pointer;
+    border-radius:18px; overflow:hidden;
+    display:flex; flex-direction:column;
     transition:all 0.22s ease; animation:fadeUp 0.5s ease both;
   }
   .cookie-card:nth-child(1){animation-delay:.05s}
@@ -111,7 +112,7 @@
   .cookie-card.selected { border-color:var(--bordo); box-shadow:0 0 0 3px rgba(107,15,42,0.15); }
   .card-img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; transition:transform 0.4s ease; }
   .cookie-card:hover .card-img { transform:scale(1.04); }
-  .card-body { padding:1rem 1rem 1.1rem; }
+  .card-body { padding:1rem 1rem 1.1rem; display:flex; flex-direction:column; flex:1; }
   .card-name { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:600; color:var(--bordo); margin-bottom:3px; }
   .card-desc { font-size:11.5px; color:var(--light-txt); margin-bottom:0.8rem; line-height:1.5; min-height:30px; }
   .card-price { font-size:13px; font-weight:500; color:var(--caramel); margin-bottom:0.75rem; }
@@ -288,7 +289,7 @@
   .card-meta { font-size:11px; color:var(--mid-txt); margin-bottom:0.7rem; line-height:1.6; }
   .card-meta b { color:var(--bordo); font-weight:600; }
   .btn-escolher {
-    width:100%; padding:10px; background:transparent; border:1.5px solid var(--caramel);
+    width:100%; margin-top:auto; padding:10px; background:transparent; border:1.5px solid var(--caramel);
     color:var(--bordo-mid); border-radius:10px; font-family:inherit; font-size:13px; font-weight:500;
     cursor:pointer; transition:all .15s;
   }
@@ -743,12 +744,32 @@ function renderGrid() {
 }
 
 // --- Configurador (modal) ---
+// O "esqueleto" do modal é montado uma vez em openConfig; cada seleção chama
+// updateConfig(), que troca só o miolo (#cfgBody) + valor + estado do botão —
+// sem recriar o card nem reanimar.
 function openConfig(id) {
-  const emb = embalagens.find(e => e.id === id);
-  if (!emb) return;
-  _cfg = { emb, sabores: new Set(), unidades: {}, qtd: 1 };
-  if (emb.modo === 'unidades') SABORES.forEach(s => _cfg.unidades[s] = 0);
-  renderConfig();
+  const e = embalagens.find(e => e.id === id);
+  if (!e) return;
+  _cfg = { emb: e, sabores: new Set(), unidades: {}, qtd: 1 };
+  if (e.modo === 'unidades') SABORES.forEach(s => _cfg.unidades[s] = 0);
+  const metaTxt = e.modo === 'unidades'
+    ? `${e.cookies} cookies por pacote · ${e.pesoG}g · mínimo ${e.minPacotes} pacotes`
+    : `${e.cookies} cookies · ${e.pesoG}g · ${e.maxSabores > 1 ? `até ${e.maxSabores} sabores` : '1 sabor'}`;
+  document.getElementById('cfgModal').innerHTML = `
+    <div class="cfg-backdrop" onclick="closeConfig()"></div>
+    <div class="cfg-card">
+      <button class="cfg-close" onclick="closeConfig()" aria-label="Fechar">✕</button>
+      <div class="cfg-nome">${e.nome}</div>
+      <div class="cfg-meta">${metaTxt}</div>
+      ${e.molhos ? `<div class="cfg-molhos">🍫 Acompanha: ${e.molhos.join(' + ')}</div>` : ''}
+      <div id="cfgBody"></div>
+      <div class="cfg-err" id="cfgErr"></div>
+      <div class="cfg-foot">
+        <span class="cfg-valor" id="cfgValor"></span>
+        <button class="cfg-add" id="cfgAdd" onclick="addToCart()">Adicionar ao pedido</button>
+      </div>
+    </div>`;
+  updateConfig();
   document.getElementById('cfgModal').classList.add('visible');
   document.body.style.overflow = 'hidden';
 }
@@ -778,21 +799,16 @@ function toggleSabor(s) {
   } else if (_cfg.sabores.size < e.maxSabores) {
     _cfg.sabores.add(s);
   }
-  renderConfig();
+  updateConfig();
 }
 
-function cfgQtd(d)     { _cfg.qtd = Math.max(1, _cfg.qtd + d); renderConfig(); }
-function cfgUnit(s, d) { _cfg.unidades[s] = Math.max(0, _cfg.unidades[s] + d); renderConfig(); }
+function cfgQtd(d)     { _cfg.qtd = Math.max(1, _cfg.qtd + d); updateConfig(); }
+function cfgUnit(s, d) { _cfg.unidades[s] = Math.max(0, _cfg.unidades[s] + d); updateConfig(); }
 
-function renderConfig() {
+// Atualiza apenas o conteúdo dinâmico do modal já aberto
+function updateConfig() {
   const e = _cfg.emb;
-  const metaTxt = e.modo === 'unidades'
-    ? `${e.cookies} cookies por pacote · ${e.pesoG}g · mínimo ${e.minPacotes} pacotes`
-    : `${e.cookies} cookies · ${e.pesoG}g · ${e.maxSabores > 1 ? `até ${e.maxSabores} sabores` : '1 sabor'}`;
-
   let body = '';
-  if (e.molhos) body += `<div class="cfg-molhos">🍫 Acompanha: ${e.molhos.join(' + ')}</div>`;
-
   if (e.modo === 'unidades') {
     body += `<div class="cfg-section-label">Monte seus pacotes<small>Cada pacote tem ${e.cookies} cookies de 1 sabor · mínimo ${e.minPacotes} pacotes</small></div>`;
     body += SABORES.map(s => `
@@ -823,21 +839,11 @@ function renderConfig() {
         <button class="qty-btn" aria-label="Mais" onclick="cfgQtd(1)">+</button>
       </div></div>`;
   }
-
+  document.getElementById('cfgBody').innerHTML = body;
+  document.getElementById('cfgValor').textContent = brl(_cfgValor());
+  document.getElementById('cfgErr').textContent = '';
   const canAdd = e.modo === 'unidades' ? _cfgPacotes() >= e.minPacotes : _cfg.sabores.size >= 1;
-  document.getElementById('cfgModal').innerHTML = `
-    <div class="cfg-backdrop" onclick="closeConfig()"></div>
-    <div class="cfg-card">
-      <button class="cfg-close" onclick="closeConfig()" aria-label="Fechar">✕</button>
-      <div class="cfg-nome">${e.nome}</div>
-      <div class="cfg-meta">${metaTxt}</div>
-      ${body}
-      <div class="cfg-err" id="cfgErr"></div>
-      <div class="cfg-foot">
-        <span class="cfg-valor">${brl(_cfgValor())}</span>
-        <button class="cfg-add" onclick="addToCart()" ${canAdd ? '' : 'disabled'}>Adicionar ao pedido</button>
-      </div>
-    </div>`;
+  document.getElementById('cfgAdd').disabled = !canAdd;
 }
 
 function _buildItem(cfg) {
