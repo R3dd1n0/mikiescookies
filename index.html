@@ -285,6 +285,15 @@
   .status-row span:first-child { color:var(--mid-txt); font-size:13px; min-width:80px; }
   .status-chip { display:inline-block; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:500; }
 
+  /* SABORES — vitrine */
+  .sabor-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px; }
+  .sabor-card { background:var(--bege-lt); border-radius:16px; overflow:hidden; animation:fadeUp .5s ease both; }
+  .sabor-card img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; }
+  .sabor-body { padding:.9rem 1rem 1.1rem; }
+  .sabor-nome { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:600; color:var(--bordo); margin-bottom:4px; }
+  .sabor-premium { font-size:9px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:#5B7A3A; border:1px solid #5B7A3A; border-radius:20px; padding:1px 7px; margin-left:6px; vertical-align:middle; }
+  .sabor-desc { font-size:12px; color:var(--light-txt); line-height:1.55; }
+
   /* EMBALAGENS — meta + botão escolher */
   .card-meta { font-size:11px; color:var(--mid-txt); margin-bottom:0.7rem; line-height:1.6; }
   .card-meta b { color:var(--bordo); font-weight:600; }
@@ -365,7 +374,13 @@
   </div>
 </div>
 
-<section class="section" id="cardapio">
+<section class="section" id="sabores">
+  <div class="label">Sabores</div>
+  <div class="title">Nossos sabores</div>
+  <div class="sabor-grid" id="saboresGrid"></div>
+</section>
+
+<section class="section" id="cardapio" style="padding-top:0;">
   <div class="label">Cardápio</div>
   <div class="title">Escolha sua embalagem</div>
   <div class="menu-grid" id="cookieGrid"></div>
@@ -701,6 +716,31 @@ function copiarCodigoPix() {
 const SABORES = ['Chocolate ao Leite', 'Ninho', 'Red Velvet', 'Black', 'Morango', 'Matcha'];
 const MATCHA  = 'Matcha';
 
+// Vitrine de sabores (seção "Nossos sabores"). `sub` é rascunho — ajuste o texto.
+// `img` ainda é placeholder p/ Ninho, Morango e Matcha (sem foto própria).
+const SABOR_INFO = {
+  'Chocolate ao Leite': { sub: 'Massa tradicional com gotas de chocolate ao leite. O clássico que nunca erra.', img: 'images/choc_leite.webp' },
+  'Ninho':              { sub: 'Massa cremosa de leite Ninho, docinha na medida certa.',                       img: 'images/choc_branco.webp' },
+  'Red Velvet':         { sub: 'Massa red velvet aveludada com gotas de chocolate branco.',                    img: 'images/red_velvet.webp' },
+  'Black':              { sub: 'Cacau intenso com gotas de chocolate ao leite e meio amargo.',                 img: 'images/dark.webp' },
+  'Morango':            { sub: 'Massa tradicional com chocolate branco e pedacinhos de morango.',              img: 'images/berry.webp' },
+  'Matcha':             { sub: 'Massa especial de matcha com chocolate branco. Levemente amarga e elegante.',   img: 'images/choc_branco.webp', premium: true },
+};
+
+function renderSabores() {
+  const grid = document.getElementById('saboresGrid');
+  grid.innerHTML = SABORES.map(s => {
+    const info = SABOR_INFO[s] || {};
+    return `<div class="sabor-card">
+      <img src="${info.img || ''}" alt="${s}" loading="lazy">
+      <div class="sabor-body">
+        <div class="sabor-nome">${s}${info.premium ? '<span class="sabor-premium">premium</span>' : ''}</div>
+        <div class="sabor-desc">${info.sub || ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // modo 'sabores'  → cliente marca QUAIS sabores; a cozinha distribui as unidades.
 //                   matchaExtra é cobrado UMA vez por caixa se o matcha estiver entre os escolhidos.
 // modo 'unidades' → cliente escolhe a QUANTIDADE de pacotes por sabor (cada pacote = 1 sabor);
@@ -1030,6 +1070,7 @@ function _aplicarMascaraWA(el) {
 
 document.getElementById('whatsapp').addEventListener('input', function() { _aplicarMascaraWA(this); });
 
+renderSabores();
 renderGrid();
 renderSlots();
 // Garante que clicar em qualquer parte do input de data abre o picker (Chromium desktop)
