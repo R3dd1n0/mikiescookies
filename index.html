@@ -24,8 +24,8 @@
   :root {
     --bordo:      #630E19;
     --bordo-mid:  #8A2230;
-    --caramel:    #C8813A;
-    --caramel-lt: #E5A855;
+    --caramel:    #630E19;
+    --caramel-lt: #ECE1CC;
     --bege:       #ECE1CC;
     --bege-lt:    #F3EAD7;
     --cream:      #F8F1E3;
@@ -58,9 +58,9 @@
   .hero-content { position:relative; z-index:2; padding:0 1.5rem; }
   .hero-badge {
     display:inline-block;
-    background:rgba(200,129,58,0.22); color:var(--caramel-lt);
+    background:rgba(236,225,204,0.14); color:var(--caramel-lt);
     font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase;
-    padding:6px 20px; border-radius:100px; border:1px solid rgba(200,129,58,0.4);
+    padding:6px 20px; border-radius:100px; border:1px solid rgba(236,225,204,0.35);
     margin-bottom:1.5rem;
   }
   .hero h1 {
@@ -71,12 +71,12 @@
   .hero-sub { font-size:1rem; color:rgba(255,255,255,0.6); max-width:340px; margin:0 auto 2.5rem; line-height:1.75; }
   .hero-tagline { font-family:'Jost',sans-serif; font-style:italic; font-size:1rem; color:rgba(255,255,255,0.45); margin-bottom:2rem; }
   .hero-cta {
-    display:inline-block; background:var(--caramel); color:#fff;
-    font-weight:500; font-size:14px; letter-spacing:0.5px;
+    display:inline-block; background:var(--bege); color:var(--bordo);
+    font-weight:600; font-size:14px; letter-spacing:0.5px;
     padding:13px 28px; border-radius:100px; text-decoration:none;
     transition:background 0.2s,transform 0.2s; cursor:pointer; border:none; font-family:inherit;
   }
-  .hero-cta:hover { background:var(--bordo-mid); transform:translateY(-2px); }
+  .hero-cta:hover { background:#fff; transform:translateY(-2px); }
   .hero-scroll {
     position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
     color:rgba(255,255,255,0.35); font-size:12px; letter-spacing:2px; text-transform:uppercase;
@@ -98,6 +98,10 @@
   .section { padding:4rem 1.5rem; max-width:760px; margin:0 auto; }
   .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--caramel); font-weight:500; margin-bottom:6px; }
   .title { font-family:'Jost',sans-serif; font-size:2rem; font-weight:600; color:var(--bordo); margin-bottom:2rem; line-height:1.2; }
+  .section-ill { height:82px; width:auto; display:block; margin-bottom:.9rem; opacity:.92; }
+  .success-icon-img { height:108px; width:auto; display:block; margin:0 auto 1rem; }
+  .hero-ill { height:76px; width:auto; display:block; margin:0 auto 1.1rem; opacity:.95; }
+  @media (max-height:600px) { .hero-ill { display:none; } }
 
   /* CARDÁPIO */
   .menu-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
@@ -192,7 +196,7 @@
   }
   .quando-date:focus { border-color:var(--caramel); }
   .fora-horario-aviso {
-    background:rgba(200,129,58,0.12); border:1px solid rgba(200,129,58,0.3);
+    background:rgba(99,14,25,0.07); border:1px solid rgba(99,14,25,0.2);
     border-radius:10px; padding:10px 14px; font-size:12.5px; color:var(--caramel);
     line-height:1.5; margin-top:6px; display:none;
   }
@@ -279,7 +283,7 @@
   .aval-wrap { max-width:480px; margin:0 auto; padding:5rem 1.5rem 3rem; text-align:center; }
   .aval-stars { display:flex; gap:10px; justify-content:center; margin-bottom:.4rem; }
   .aval-star { font-size:2.8rem; cursor:pointer; color:#D4C5A9; transition:color .12s, transform .1s; user-select:none; line-height:1; }
-  .aval-star.ativo { color:var(--caramel-lt); transform:scale(1.08); }
+  .aval-star.ativo { color:var(--bordo); transform:scale(1.08); }
   .aval-star:hover { color:var(--caramel); }
   .aval-textarea { width:100%; min-height:90px; resize:vertical; border:2px solid var(--bege); border-radius:12px; padding:12px; font-family:inherit; font-size:14px; background:var(--cream); color:var(--dark-txt); outline:none; transition:border-color .2s; }
   .aval-textarea:focus { border-color:var(--caramel); }
@@ -328,7 +332,7 @@
   .cfg-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:22px; color:var(--light-txt); cursor:pointer; line-height:1; }
   .cfg-nome { font-family:'Jost',sans-serif; font-size:1.4rem; font-weight:600; color:var(--bordo); margin-bottom:2px; padding-right:28px; }
   .cfg-meta { font-size:12px; color:var(--light-txt); margin-bottom:1rem; line-height:1.5; }
-  .cfg-molhos { background:rgba(200,129,58,0.12); border:1px solid rgba(200,129,58,0.3); border-radius:10px; padding:8px 12px; font-size:12px; color:var(--caramel); margin-bottom:1rem; }
+  .cfg-molhos { background:rgba(99,14,25,0.07); border:1px solid rgba(99,14,25,0.2); border-radius:10px; padding:8px 12px; font-size:12px; color:var(--caramel); margin-bottom:1rem; }
   .cfg-section-label { font-size:13px; font-weight:500; color:var(--mid-txt); margin-bottom:.6rem; }
   .cfg-section-label small { display:block; font-weight:400; font-size:11.5px; color:var(--light-txt); margin-top:2px; }
   .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1.1rem; }
@@ -361,6 +365,7 @@
   <div class="hero-bg"></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
+    <img class="hero-ill" src="images/ill-logo-cream.png" alt="" aria-hidden="true">
     <div class="hero-badge">🍪 Feito com amor, assado na hora</div>
     <h1>Mikies<br><span>Cookies</span></h1>
     <p class="hero-sub">Cookies artesanais com ingredientes selecionados. Peça o seu e receba no conforto de casa.</p>
@@ -380,12 +385,14 @@
 </div>
 
 <section class="section" id="sabores">
+  <img class="section-ill" src="images/ill-run.png" alt="" aria-hidden="true">
   <div class="label">Sabores</div>
   <div class="title">Nossos sabores</div>
   <div class="sabor-grid" id="saboresGrid"></div>
 </section>
 
 <section class="section" id="cardapio" style="padding-top:0;">
+  <img class="section-ill" src="images/ill-duo.png" alt="" aria-hidden="true">
   <div class="label">Cardápio</div>
   <div class="title">Escolha sua embalagem</div>
   <div class="menu-grid" id="cookieGrid"></div>
@@ -474,7 +481,7 @@
 </section>
 
 <div class="success-screen" id="successScreen">
-  <div class="success-icon">🍪</div>
+  <img class="success-icon-img" src="images/ill-logo.png" alt="" aria-hidden="true">
   <h2>Quase lá!</h2>
   <p id="pedidoNumLine" style="display:none; font-weight:600; color:var(--bordo); margin:.25rem 0 .5rem; font-size:1rem;"></p>
   <p id="successMsg">Confirme pelo WhatsApp para finalizar. Após a confirmação, realize o pagamento via Pix e envie o comprovante.</p>
