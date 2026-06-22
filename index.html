@@ -38,7 +38,7 @@
 
   /* HERO */
   .hero {
-    position:relative; height:100svh; min-height:560px;
+    position:relative; min-height:100svh; padding:3.5rem 1.25rem 4.5rem;
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
     text-align:center; overflow:hidden;
@@ -62,12 +62,12 @@
     margin-bottom:1.5rem;
   }
   .hero h1 {
-    font-family:'Jost',sans-serif; font-size:clamp(3rem,9vw,6rem);
-    font-weight:700; color:#fff; line-height:1.0; margin-bottom:1rem; letter-spacing:-1px;
+    font-family:'Jost',sans-serif; font-size:clamp(2.6rem,8vw,5rem);
+    font-weight:700; color:#fff; line-height:1.0; margin-bottom:0.75rem; letter-spacing:-1px;
   }
   .hero h1 span { color:var(--caramel-lt); font-style:italic; }
-  .hero-sub { font-size:1rem; color:rgba(255,255,255,0.6); max-width:340px; margin:0 auto 2.5rem; line-height:1.75; }
-  .hero-tagline { font-family:'Jost',sans-serif; font-style:italic; font-size:1rem; color:rgba(255,255,255,0.45); margin-bottom:2rem; }
+  .hero-sub { font-size:1rem; color:rgba(255,255,255,0.6); max-width:340px; margin:0 auto 1.6rem; line-height:1.75; }
+  .hero-tagline { font-family:'Jost',sans-serif; font-style:italic; font-size:1rem; color:rgba(255,255,255,0.45); margin-bottom:1.4rem; }
   .hero-cta {
     display:inline-block; background:var(--bege); color:var(--bordo);
     font-weight:600; font-size:14px; letter-spacing:0.5px;
@@ -103,8 +103,9 @@
   .ill-divider::after { background:linear-gradient(90deg,rgba(99,14,25,.4),transparent); }
   .ill-divider img { height:104px; width:auto; opacity:.95; }
   .success-icon-img { height:108px; width:auto; display:block; margin:0 auto 1rem; }
-  .hero-ill { height:clamp(116px,23vw,168px); width:auto; display:block; margin:0 auto 1.3rem; }
-  @media (max-height:560px) { .hero-ill { height:92px; margin-bottom:.7rem; } }
+  .hero-ill { height:clamp(96px,17vw,132px); width:auto; display:block; margin:0 auto 1rem; }
+  @media (max-height:740px) { .hero-scroll { display:none; } }
+  @media (max-height:560px) { .hero-ill { height:84px; margin-bottom:.6rem; } }
 
   /* CARDÁPIO */
   .menu-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
