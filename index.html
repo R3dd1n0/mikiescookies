@@ -42,18 +42,16 @@
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
     text-align:center; overflow:hidden;
+    background:linear-gradient(165deg,#79121F 0%,#630E19 50%,#4C0A14 100%);
   }
   .hero-bg {
     position:absolute; inset:0;
-    background:url('images/hero_bg.webp') center/cover no-repeat;
-    filter:brightness(0.38);
-    transform:scale(1.04);
-    transition:transform 8s ease;
+    background:url('images/ill-run-cream.png') no-repeat right -56px bottom -44px;
+    background-size:380px auto; opacity:.06;
   }
-  .hero:hover .hero-bg { transform:scale(1.0); }
   .hero-overlay {
     position:absolute; inset:0;
-    background:linear-gradient(180deg,rgba(107,15,42,0.35) 0%,rgba(26,6,16,0.72) 100%);
+    background:radial-gradient(ellipse at 50% 38%, transparent 0%, rgba(40,8,16,0.55) 100%);
   }
   .hero-content { position:relative; z-index:2; padding:0 1.5rem; }
   .hero-badge {
@@ -95,13 +93,18 @@
   @keyframes slide { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
   /* SEÇÃO */
-  .section { padding:4rem 1.5rem; max-width:760px; margin:0 auto; }
+  .section { padding:4rem 1.5rem; max-width:760px; margin:0 auto; position:relative; overflow:hidden; }
+  .section > :not(.section-wm) { position:relative; z-index:1; }
+  .section-wm { position:absolute; top:2.2rem; right:-18px; height:210px; width:auto; opacity:.075; z-index:0; pointer-events:none; user-select:none; }
   .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--caramel); font-weight:500; margin-bottom:6px; }
   .title { font-family:'Jost',sans-serif; font-size:2rem; font-weight:600; color:var(--bordo); margin-bottom:2rem; line-height:1.2; }
-  .section-ill { height:82px; width:auto; display:block; margin-bottom:.9rem; opacity:.92; }
+  .ill-divider { display:flex; align-items:center; justify-content:center; gap:1.4rem; max-width:760px; margin:2.5rem auto -0.5rem; padding:0 1.5rem; }
+  .ill-divider::before, .ill-divider::after { content:""; height:1px; flex:1; max-width:130px; background:linear-gradient(90deg,transparent,rgba(99,14,25,.4)); }
+  .ill-divider::after { background:linear-gradient(90deg,rgba(99,14,25,.4),transparent); }
+  .ill-divider img { height:104px; width:auto; opacity:.95; }
   .success-icon-img { height:108px; width:auto; display:block; margin:0 auto 1rem; }
-  .hero-ill { height:76px; width:auto; display:block; margin:0 auto 1.1rem; opacity:.95; }
-  @media (max-height:600px) { .hero-ill { display:none; } }
+  .hero-ill { height:clamp(116px,23vw,168px); width:auto; display:block; margin:0 auto 1.3rem; }
+  @media (max-height:560px) { .hero-ill { height:92px; margin-bottom:.7rem; } }
 
   /* CARDÁPIO */
   .menu-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
@@ -384,15 +387,19 @@
   </div>
 </div>
 
+<div class="ill-divider"><img src="images/ill-run.png" alt="" aria-hidden="true"></div>
+
 <section class="section" id="sabores">
-  <img class="section-ill" src="images/ill-run.png" alt="" aria-hidden="true">
+  <img class="section-wm" src="images/ill-duo.png" alt="" aria-hidden="true">
   <div class="label">Sabores</div>
   <div class="title">Nossos sabores</div>
   <div class="sabor-grid" id="saboresGrid"></div>
 </section>
 
+<div class="ill-divider"><img src="images/ill-logo.png" alt="" aria-hidden="true"></div>
+
 <section class="section" id="cardapio" style="padding-top:0;">
-  <img class="section-ill" src="images/ill-duo.png" alt="" aria-hidden="true">
+  <img class="section-wm" src="images/ill-run.png" alt="" aria-hidden="true">
   <div class="label">Cardápio</div>
   <div class="title">Escolha sua embalagem</div>
   <div class="menu-grid" id="cookieGrid"></div>
