@@ -278,6 +278,10 @@ const EMBALAGENS = [
 ];
 const SABORES_LISTA = ['Chocolate ao Leite', 'Ninho', 'Red Velvet', 'Black', 'Morango', 'Matcha'];
 
+// Contatos exibidos nos templates de imagem (Slides). Fonte única — evita Pix/site desatualizados.
+const PIX_KEY      = 'mikiescookies@gmail.com';
+const SITE_DISPLAY = 'mikies.com.br';
+
 // Mapa de colunas da aba "Pedidos" (1-indexado). Linha de dados começa em 4.
 const COL = {
   NUM:1, DATA:2, NOME:3, WA:4, ITENS:5,
@@ -664,6 +668,8 @@ function _enviarImagemPedido(cfg, pedido, threadId) {
     ap.replaceAllText('{{total}}',           _fmt(pedido.total));
     ap.replaceAllText('{{ocasiao}}',         pedido.ocasiao        || 'Sem motivo especial');
     ap.replaceAllText('{{mensagem_cartao}}', pedido.mensagemCartao || '');
+    ap.replaceAllText('{{pix}}',             PIX_KEY);
+    ap.replaceAllText('{{site}}',            SITE_DISPLAY);
     ap.saveAndClose();
     const resp = UrlFetchApp.fetch(
       `https://docs.google.com/presentation/d/${copiaId}/export/png`,
@@ -716,6 +722,7 @@ function _enviarImagemAgradecimento(cfg, pedido, threadId) {
     ap.replaceAllText('{{numero}}',   String(pedido.numeroPedido));
     ap.replaceAllText('{{itens}}',    _itensTexto(pedido));
     ap.replaceAllText('{{form_url}}', formUrl);
+    ap.replaceAllText('{{site}}',     SITE_DISPLAY);
     ap.saveAndClose();
     const resp = UrlFetchApp.fetch(
       `https://docs.google.com/presentation/d/${copiaId}/export/png`,
