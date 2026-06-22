@@ -9,13 +9,13 @@ from reportlab.lib.utils import ImageReader
 
 W, H = 600, 740
 
-GREEN   = HexColor('#97A572'); GREEN_D = HexColor('#566036')
-BORDO   = HexColor('#6B0F2A'); CARAMEL = HexColor('#C8813A'); CARAMEL_D = HexColor('#A85F22')
-INK     = HexColor('#211F18'); MUTED   = HexColor('#5E5C50'); CREAM = HexColor('#FBF4E8')
+GREEN   = HexColor('#630E19'); GREEN_D = HexColor('#A85F22')
+BORDO   = HexColor('#630E19'); CARAMEL = HexColor('#C8813A'); CARAMEL_D = HexColor('#A85F22')
+INK     = HexColor('#2A0A10'); MUTED   = HexColor('#6E5A52'); CREAM = HexColor('#ECE1CC')
 SERIF, SERIF_I, SERIF_B = 'Times-Roman', 'Times-Italic', 'Times-Bold'
 SANS, SANS_B = 'Helvetica', 'Helvetica-Bold'
 
-LOGO = "images/marca-mikies.jpg"
+LOGO = "images/ill-logo-cream.png"
 OUT  = "tools/confirmacao-mock.pdf"
 
 NUM, NOME = "1", "Mariana Marinho"
@@ -76,8 +76,8 @@ def check(cx, cy, r):
 # fundo + arco
 c.setFillColor(CREAM); c.rect(0, 0, W, H, fill=1, stroke=0)
 c.setFillColor(GREEN); c.drawPath(greencap(), fill=1, stroke=0)
-img = ImageReader(LOGO); iw, ih = img.getSize(); lw = 118; lh = lw*ih/iw
-c.drawImage(img, CX-lw/2, PT-20-lh, width=lw, height=lh, mask=None)
+img = ImageReader(LOGO); iw, ih = img.getSize(); lh = 96; lw = lh*iw/ih
+c.drawImage(img, CX-lw/2, PT-16-lh, width=lw, height=lh, mask='auto')
 c.setFillColor(CREAM); c.setFont(SANS, 9)
 c.drawCentredString(CX, YGREEN+18, "C O O K I E S   A R T E S A N A I S   ·   F O R T A L E Z A")
 
