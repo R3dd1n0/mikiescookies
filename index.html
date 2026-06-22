@@ -38,7 +38,7 @@
 
   /* HERO */
   .hero {
-    position:relative; min-height:100svh; padding:3.5rem 1.25rem 4.5rem;
+    position:relative; min-height:78svh; padding:3.5rem 1.25rem;
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
     text-align:center; overflow:hidden;
@@ -93,15 +93,15 @@
   @keyframes slide { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
   /* SEÇÃO */
-  .section { padding:4rem 1.5rem; max-width:760px; margin:0 auto; position:relative; overflow:hidden; }
+  .section { padding:1.75rem 1.5rem 3rem; max-width:760px; margin:0 auto; position:relative; overflow:hidden; }
   .section > :not(.section-wm) { position:relative; z-index:1; }
   .section-wm { position:absolute; top:2.2rem; right:-18px; height:210px; width:auto; opacity:.075; z-index:0; pointer-events:none; user-select:none; }
   .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--caramel); font-weight:500; margin-bottom:6px; }
-  .title { font-family:'Jost',sans-serif; font-size:2rem; font-weight:600; color:var(--bordo); margin-bottom:2rem; line-height:1.2; }
-  .ill-divider { display:flex; align-items:center; justify-content:center; gap:1.4rem; max-width:760px; margin:2.5rem auto -0.5rem; padding:0 1.5rem; }
+  .title { font-family:'Jost',sans-serif; font-size:2rem; font-weight:600; color:var(--bordo); margin-bottom:1.5rem; line-height:1.2; }
+  .ill-divider { display:flex; align-items:center; justify-content:center; gap:1.25rem; max-width:760px; margin:2rem auto 1.25rem; padding:0 1.5rem; }
   .ill-divider::before, .ill-divider::after { content:""; height:1px; flex:1; max-width:130px; background:linear-gradient(90deg,transparent,rgba(99,14,25,.4)); }
   .ill-divider::after { background:linear-gradient(90deg,rgba(99,14,25,.4),transparent); }
-  .ill-divider img { height:104px; width:auto; opacity:.95; }
+  .ill-divider img { height:76px; width:auto; opacity:.95; }
   .success-icon-img { height:108px; width:auto; display:block; margin:0 auto 1rem; }
   .hero-ill { height:clamp(96px,17vw,132px); width:auto; display:block; margin:0 auto 1rem; }
   @media (max-height:740px) { .hero-scroll { display:none; } }
@@ -405,7 +405,7 @@
 
 <div class="ill-divider"><img src="images/ill-logo.png" alt="" aria-hidden="true"></div>
 
-<section class="section" id="cardapio" style="padding-top:0;">
+<section class="section" id="cardapio">
   <img class="section-wm" src="images/ill-run.png" alt="" aria-hidden="true">
   <div class="label">Cardápio</div>
   <div class="title">Escolha sua embalagem</div>
