@@ -414,19 +414,19 @@
       <label>Entrega / Retirada</label>
       <div class="entrega-grid">
         <div class="entrega-card">
-          <input type="radio" name="entrega" id="ent-fortaleza" value="fortaleza" data-frete="10" data-label="Fortaleza" checked>
+          <input type="radio" name="entrega" id="ent-fortaleza" value="fortaleza" data-frete="15" data-label="Fortaleza" checked>
           <label for="ent-fortaleza">
             <span class="entrega-icon">🛵</span>
             <span class="entrega-nome">Fortaleza</span>
-            <span class="entrega-preco">+ R$ 10,00</span>
+            <span class="entrega-preco">+ R$ 15,00</span>
           </label>
         </div>
         <div class="entrega-card">
-          <input type="radio" name="entrega" id="ent-metropolitana" value="metropolitana" data-frete="20" data-label="Reg. Metropolitana">
+          <input type="radio" name="entrega" id="ent-metropolitana" value="metropolitana" data-frete="25" data-label="Reg. Metropolitana">
           <label for="ent-metropolitana">
             <span class="entrega-icon">🚗</span>
             <span class="entrega-nome">Reg. Metropolitana</span>
-            <span class="entrega-preco">+ R$ 20,00</span>
+            <span class="entrega-preco">+ R$ 25,00</span>
           </label>
         </div>
         <div class="entrega-card">
@@ -746,9 +746,9 @@ const MATCHA  = 'Matcha';
 const SABOR_INFO = {
   'Chocolate ao Leite': { sub: 'Massa tradicional com gotas de chocolate ao leite. O clássico que nunca erra.', img: 'images/choc_leite.webp' },
   'Ninho':              { sub: 'Massa cremosa de leite Ninho, docinha na medida certa.',                       img: 'images/choc_branco.webp' },
-  'Red Velvet':         { sub: 'Massa red velvet aveludada com gotas de chocolate branco.',                    img: 'images/red_velvet.webp' },
-  'Black':              { sub: 'Cacau intenso com gotas de chocolate ao leite e meio amargo.',                 img: 'images/dark.webp' },
-  'Morango':            { sub: 'Massa tradicional com chocolate branco e pedacinhos de morango.',              img: 'images/berry.webp' },
+  'Red Velvet':         { sub: 'Massa red incrível com gotas de chocolate branco.',                            img: 'images/red_velvet.webp' },
+  'Black':              { sub: 'Massa cacau black com gotas de chocolate ao leite e meio amargo.',             img: 'images/dark.webp' },
+  'Morango':            { sub: 'Massa tradicional com chocolate branco e um toque de morango (rosinha!).',     img: 'images/berry.webp' },
   'Matcha':             { sub: 'Massa especial de matcha com chocolate branco. Levemente amarga e elegante.',   img: 'images/choc_branco.webp', premium: true },
 };
 
@@ -772,11 +772,11 @@ function renderSabores() {
 //                   matchaExtra é cobrado por pacote de matcha. minPacotes define o mínimo total.
 // imgs: primeiro item é exibido no card (placeholder até as fotos definitivas das embalagens).
 const embalagens = [
-  { id:'mimo',    nome:'Mikies Mimo',     sub:'A maior — feita pra dividir (ou não)',     preco:59.90, matchaExtra:5, cookies:40, pesoG:300, modo:'sabores',  maxSabores:3, molhos:false,                          imgs:['images/choc_branco.webp'], active:true },
-  { id:'dip',     nome:'Mikies Dip',      sub:'Cookies + molhos pra mergulhar',           preco:64.90, matchaExtra:4, cookies:30, pesoG:225, modo:'sabores',  maxSabores:3, molhos:['Nutela','Caramelo salgado'], imgs:['images/dark.webp'],        active:true },
-  { id:'jewel',   nome:'Mikies Jewel',    sub:'Lata-presente de um sabor só',             preco:39.90, matchaExtra:5, cookies:24, pesoG:180, modo:'sabores',  maxSabores:1, molhos:false,                          imgs:['images/red_velvet.webp'],  active:true },
-  { id:'toshare', nome:'Mikies to Share', sub:'Saquinho pra compartilhar',                preco:25.90, matchaExtra:3, cookies:20, pesoG:150, modo:'sabores',  maxSabores:1, molhos:false,                          imgs:['images/choc_leite.webp'],  active:true },
-  { id:'pocket',  nome:'Mikies Pocket',   sub:'Mini saquinho individual · mínimo 10',     preco:12.90, matchaExtra:2, cookies:6,  pesoG:40,  modo:'unidades', minPacotes:10, molhos:false,                        imgs:['images/berry.webp'],       active:true },
+  { id:'mimo',    nome:'Mikies Mimo',     sub:'Potinho de acrílico cheio de charme, pra presentear.',     preco:59.90, matchaExtra:5, cookies:40, pesoG:300, modo:'sabores',  maxSabores:3, molhos:false,                          imgs:['images/choc_branco.webp'], active:true },
+  { id:'dip',     nome:'Mikies Dip',      sub:'Com molhos pra mergulhar: nutela e caramelo salgado.',           preco:64.90, matchaExtra:4, cookies:30, pesoG:225, modo:'sabores',  maxSabores:3, molhos:['Nutela','Caramelo salgado'], imgs:['images/dark.webp'],        active:true },
+  { id:'jewel',   nome:'Mikies Jewel',    sub:'Lata-presente de um sabor só. Linda de presentear.',             preco:39.90, matchaExtra:5, cookies:24, pesoG:180, modo:'sabores',  maxSabores:1, molhos:false,                          imgs:['images/red_velvet.webp'],  active:true },
+  { id:'toshare', nome:'Mikies to Share', sub:'Pra levar na bolsa e dividir (ou não).',                preco:25.90, matchaExtra:3, cookies:20, pesoG:150, modo:'sabores',  maxSabores:1, molhos:false,                          imgs:['images/choc_leite.webp'],  active:true },
+  { id:'pocket',  nome:'Mikies Pocket',   sub:'A versão mini, em saquinhos individuais. Mín. 10.',     preco:12.90, matchaExtra:2, cookies:6,  pesoG:40,  modo:'unidades', minPacotes:10, molhos:false,                        imgs:['images/berry.webp'],       active:true },
 ];
 
 const carrinho = []; // itens já configurados pelo cliente

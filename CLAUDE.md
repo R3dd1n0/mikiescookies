@@ -99,8 +99,8 @@ Para adicionar uma embalagem: incluir no `embalagens[]` (front) e no `EMBALAGENS
 ## Frete
 | Modalidade | Valor |
 |------------|-------|
-| Fortaleza | R$ 10,00 |
-| Reg. Metropolitana | R$ 20,00 |
+| Fortaleza | R$ 15,00 |
+| Reg. Metropolitana | R$ 25,00 |
 | Retirada | Grátis |
 
 ## Chave Pix e contatos

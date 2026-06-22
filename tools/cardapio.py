@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Cardápio Mikies Cookies — 1 página, arco boleado sem moldura, traço artesanal.
-Paleta: verde-sálvia da marca + bordô/caramelo do site, sobre creme."""
+Paleta: verde-sálvia da marca + bordô/caramelo do site, sobre creme.
+Links clicáveis no rodapé: site, WhatsApp e Instagram."""
 import math
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.colors import HexColor
@@ -10,15 +11,14 @@ from reportlab.lib.utils import ImageReader
 
 W, H = A4
 
-# marca + site
-GREEN   = HexColor('#97A572')   # verde-sálvia do logo
+GREEN   = HexColor('#97A572')
 GREEN_D = HexColor('#566036')
-BORDO   = HexColor('#6B0F2A')   # vinho do site
-CARAMEL = HexColor('#C8813A')   # caramelo do site
-CARAMEL_D = HexColor('#A85F22') # caramelo p/ texto (mais legível)
+BORDO   = HexColor('#6B0F2A')
+CARAMEL = HexColor('#C8813A')
+CARAMEL_D = HexColor('#A85F22')
 INK     = HexColor('#211F18')
 MUTED   = HexColor('#5E5C50')
-CREAM   = HexColor('#FBF4E8')   # bege-claro do site
+CREAM   = HexColor('#FBF4E8')
 
 SERIF, SERIF_I, SERIF_B = 'Times-Roman', 'Times-Italic', 'Times-Bold'
 SANS, SANS_B = 'Helvetica', 'Helvetica-Bold'
@@ -26,31 +26,41 @@ SANS, SANS_B = 'Helvetica', 'Helvetica-Bold'
 LOGO = "images/marca-mikies.jpg"
 OUT  = "cardapio-mikies.pdf"
 
+# (nome, preço, ficha técnica, descrição)
 EMBALAGENS = [
-    ("Mikies Mimo",     "R$ 59,90",          "40 cookies · 300 g · até 3 sabores"),
-    ("Mikies Dip",      "R$ 64,90",          "30 cookies · 225 g · até 3 sabores\nacompanha nutela + caramelo salgado"),
-    ("Mikies Jewel",    "R$ 39,90",          "24 cookies · 180 g · 1 sabor"),
-    ("Mikies to Share", "R$ 25,90",          "20 cookies · 150 g · 1 sabor"),
-    ("Mikies Pocket",   "R$ 12,90 / pacote", "6 cookies/pacote · 40 g · mín. 10 pacotes"),
+    ("Mikies Mimo",     "R$ 59,90",          "40 cookies · 300 g · até 3 sabores",
+     "Potinho de acrílico cheio de charme, pra presentear."),
+    ("Mikies Dip",      "R$ 64,90",          "30 cookies · 225 g · até 3 sabores",
+     "Com molhos pra mergulhar: nutela e caramelo salgado."),
+    ("Mikies Jewel",    "R$ 39,90",          "24 cookies · 180 g · 1 sabor",
+     "Lata-presente de um sabor só. Linda de presentear."),
+    ("Mikies to Share", "R$ 25,90",          "20 cookies · 150 g · 1 sabor",
+     "Pra levar na bolsa e dividir (ou não) e ser feliz."),
+    ("Mikies Pocket",   "R$ 12,90 / pacote", "6 cookies/pacote · 40 g · mín. 10",
+     "A versão mini, em saquinhos individuais."),
 ]
 SABORES = [
     ("Chocolate ao Leite", "Massa tradicional com gotas de chocolate ao leite.", False),
     ("Ninho",              "Massa cremosa de leite Ninho, docinha na medida.", False),
-    ("Red Velvet",         "Aveludada, com gotas de chocolate branco.", False),
-    ("Black",              "Cacau intenso com chocolate ao leite e meio amargo.", False),
-    ("Morango",            "Chocolate branco com pedacinhos de morango.", False),
+    ("Red Velvet",         "Massa red incrível com gotas de chocolate branco.", False),
+    ("Black",              "Cacau black com gotas de choco ao leite e amargo.", False),
+    ("Morango",            "Choco branco com um toque de morango (rosinha!).", False),
     ("Matcha",             "Matcha com chocolate branco; levemente amarga.", True),
 ]
+
+WA_URL  = "https://wa.me/5585920080270"
+IG_URL  = "https://instagram.com/mikiescookies"
+SITE_URL = "https://mikies.com.br"
 
 c = canvas.Canvas(OUT, pagesize=A4)
 c.setTitle("Cardápio — Mikies Cookies")
 
 PX0, PX1 = 36, W-36
 CX   = W/2
-PT   = H-30           # topo do arco
+PT   = H-30
 ARCH = 158
-YSH  = PT-ARCH        # ombro do arco
-YGREEN = PT-230       # base ondulada da tampa verde
+YSH  = PT-ARCH
+YGREEN = PT-230
 
 
 def wave_pts(x1, x2, y, amp, wl):
@@ -98,7 +108,6 @@ def wrap(text, font, size, maxw):
 c.setFillColor(CREAM); c.rect(0, 0, W, H, fill=1, stroke=0)
 c.setFillColor(GREEN); c.drawPath(greencap_path(), fill=1, stroke=0)
 
-# logo + tagline na tampa
 img = ImageReader(LOGO); iw, ih = img.getSize()
 lw = 150; lh = lw*ih/iw
 c.drawImage(img, CX-lw/2, PT-28-lh, width=lw, height=lh, mask=None)
@@ -106,52 +115,69 @@ c.setFillColor(CREAM); c.setFont(SERIF_I, 16.5)
 c.drawCentredString(CX, YGREEN+28, "one bite to love it all.")
 draw_wave(CX-56, CX+56, YGREEN+15, 1.6, 16, CREAM, 1.1)
 
-# ── colunas ──
+
 def title(x, y, txt):
     c.setFillColor(BORDO); c.setFont(SERIF_I, 22); c.drawString(x, y, txt)
     w = c.stringWidth(txt, SERIF_I, 22)
     draw_wave(x, x+w, y-8, 1.8, 14, CARAMEL, 1.4)
 
 
-LX, LW = 54, 236
-RX, RW = 312, W-42-312
-y0 = YGREEN-48
+LX, LW = 54, 240
+RX, RW = 318, W-40-318
+y0 = YGREEN-46
 
+# embalagens (com ficha técnica + descrição)
 title(LX, y0, "as embalagens")
 y = y0-30
-for nome, preco, desc in EMBALAGENS:
-    c.setFont(SANS_B, 10.5); c.setFillColor(CARAMEL_D); c.drawString(LX, y, preco)
-    c.setFont(SERIF_B, 14); c.setFillColor(INK); c.drawString(LX, y-17, nome)
-    c.setFont(SANS, 9); c.setFillColor(MUTED); dy = y-31
-    for ln in wrap(desc, SANS, 9, LW):
-        c.drawString(LX, dy, ln); dy -= 11.5
+for nome, preco, meta, desc in EMBALAGENS:
+    c.setFont(SANS_B, 10); c.setFillColor(CARAMEL_D); c.drawString(LX, y, preco)
+    c.setFont(SERIF_B, 13.5); c.setFillColor(INK); c.drawString(LX, y-15, nome)
+    c.setFont(SANS, 7.6); c.setFillColor(MUTED); c.drawString(LX, y-27, meta)
+    c.setFont(SERIF_I, 8.8); c.setFillColor(GREEN_D); dy = y-39
+    for ln in wrap(desc, SERIF_I, 8.8, LW):
+        c.drawString(LX, dy, ln); dy -= 10.5
     y = dy-13
-c.setFont(SERIF_I, 9.5); c.setFillColor(GREEN_D)
+c.setFont(SERIF_I, 8.8); c.setFillColor(BORDO)
 c.drawString(LX, y, "Matcha tem acréscimo por embalagem (R$ 2 a R$ 5).")
 
+# sabores
 title(RX, y0, "os sabores")
 yr = y0-30
 for nome, desc, premium in SABORES:
-    c.setFont(SERIF_B, 14); c.setFillColor(INK); c.drawString(RX, yr, nome)
+    c.setFont(SERIF_B, 13.5); c.setFillColor(INK); c.drawString(RX, yr, nome)
     if premium:
-        wn = c.stringWidth(nome, SERIF_B, 14)
-        c.setFont(SERIF_I, 9.5); c.setFillColor(BORDO); c.drawString(RX+wn+7, yr, "premium")
-    c.setFont(SANS, 9); c.setFillColor(MUTED)
-    for i, ln in enumerate(wrap(desc, SANS, 9, RW)):
-        c.drawString(RX, yr-13-i*11, ln)
-    yr -= 39
+        wn = c.stringWidth(nome, SERIF_B, 13.5)
+        c.setFont(SERIF_I, 9); c.setFillColor(BORDO); c.drawString(RX+wn+7, yr, "premium")
+    c.setFont(SANS, 8.6); c.setFillColor(MUTED)
+    for i, ln in enumerate(wrap(desc, SANS, 8.6, RW)):
+        c.drawString(RX, yr-12-i*10.5, ln)
+    yr -= 37
 
 # ── rodapé (sem faixa dura) ──
-yb = 138
+yb = 140
 draw_wave(92, W-92, yb, 2.6, 42, GREEN, 1.3)
 c.setFillColor(BORDO); c.setFont(SERIF_I, 13.5)
 c.drawCentredString(CX, yb-27, "Feito à mão, em pequenas fornadas")
 c.setFillColor(MUTED); c.setFont(SANS, 9)
-c.drawCentredString(CX, yb-46, "FRETE   Fortaleza R$ 10  ·  Região Metropolitana R$ 20  ·  Retirada grátis")
+c.drawCentredString(CX, yb-46, "FRETE   Fortaleza R$ 15  ·  Região Metropolitana R$ 25  ·  Retirada grátis")
 c.drawCentredString(CX, yb-60, "PAGAMENTO   Pix  mikiescookies@gmail.com")
-c.setFillColor(BORDO); c.setFont(SANS_B, 9.5)
-c.drawCentredString(CX, yb-79, "mikies.com.br   ·   WhatsApp (85) 92008-0270   ·   @mikiescookies")
-# fecho boleado (mini onda caramelo)
+
+# linha de contatos com links clicáveis
+font, size, yl = SANS_B, 9.5, yb-80
+parts = [("mikies.com.br", SITE_URL), ("     ·     ", None),
+         ("WhatsApp (85) 92008-0270", WA_URL), ("     ·     ", None),
+         ("@mikiescookies", IG_URL)]
+total = sum(c.stringWidth(t, font, size) for t, _ in parts)
+x = CX-total/2
+c.setFont(font, size)
+for text, url in parts:
+    w = c.stringWidth(text, font, size)
+    c.setFillColor(BORDO); c.drawString(x, yl, text)
+    if url:
+        c.setStrokeColor(CARAMEL); c.setLineWidth(0.7); c.line(x, yl-2.5, x+w, yl-2.5)
+        c.linkURL(url, (x, yl-4, x+w, yl+11), relative=0)
+    x += w
+
 draw_wave(CX-90, CX+90, 44, 2, 26, CARAMEL, 1.1)
 
 c.showPage(); c.save()

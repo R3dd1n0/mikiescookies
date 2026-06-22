@@ -35,7 +35,7 @@
 | 11 | K | Total Cookies | Inteiro | GAS | Soma de cookies de todas as embalagens |
 | 12 | L | Peso (g) | Inteiro | GAS | Peso total estimado |
 | 13 | M | Subtotal | Moeda (R$) | GAS | Produtos, já com acréscimo de matcha |
-| 14 | N | Frete | Moeda (R$) | GAS | Valores: 0,00 / 10,00 / 20,00 |
+| 14 | N | Frete | Moeda (R$) | GAS | Valores: 0,00 / 15,00 / 25,00 |
 | 15 | O | Total | Moeda (R$) | GAS | Subtotal + Frete |
 | 16 | P | Valor Confirmado | Moeda (R$) | **Manual** | Operador preenche/corrige após conferir |
 | 17 | Q | Status Pix | Texto (enum) | GAS + Manual | Valores fixos — ver abaixo. **Observada pelo `onEdit`** |
