@@ -299,13 +299,19 @@
   .status-chip { display:inline-block; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:500; }
 
   /* SABORES — vitrine */
-  .sabor-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px; }
-  .sabor-card { background:var(--bege-lt); border-radius:16px; overflow:hidden; animation:fadeUp .5s ease both; }
+  .sabor-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .sabor-card { background:var(--bege-lt); border-radius:14px; overflow:hidden; animation:fadeUp .5s ease both; }
   .sabor-card img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; }
-  .sabor-body { padding:.9rem 1rem 1.1rem; }
-  .sabor-nome { font-family:'Jost',sans-serif; font-size:1.05rem; font-weight:600; color:var(--bordo); margin-bottom:4px; }
-  .sabor-premium { font-size:9px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:#5B7A3A; border:1px solid #5B7A3A; border-radius:20px; padding:1px 7px; margin-left:6px; vertical-align:middle; }
-  .sabor-desc { font-size:12px; color:var(--light-txt); line-height:1.55; }
+  .sabor-body { padding:.7rem .8rem .85rem; }
+  .sabor-nome { font-family:'Jost',sans-serif; font-size:.98rem; font-weight:600; color:var(--bordo); margin-bottom:3px; line-height:1.2; }
+  .sabor-premium { font-size:8.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--bordo); border:1px solid var(--bordo); border-radius:20px; padding:1px 6px; margin-left:5px; vertical-align:middle; }
+  .sabor-desc { font-size:11.5px; color:var(--light-txt); line-height:1.5; }
+  @media (max-width:480px) {
+    .sabor-grid { gap:8px; }
+    .sabor-body { padding:.55rem .55rem .7rem; }
+    .sabor-nome { font-size:.86rem; }
+    .sabor-desc { font-size:10.5px; }
+  }
 
   /* EMBALAGENS — meta + botão escolher */
   .card-meta { font-size:11px; color:var(--mid-txt); margin-bottom:0.7rem; line-height:1.6; }
