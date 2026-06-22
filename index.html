@@ -1033,25 +1033,8 @@ async function enviarPedido(e) {
     })),
   };
 
-  // Confirma a gravação no Sheets via JSONP — antes o pedido era enviado às cegas (no-cors),
-  // mostrando "sucesso" mesmo quando o GAS falhava. Se a confirmação não vier, seguimos para a
-  // tela de sucesso assim mesmo (o cliente fecha pelo WhatsApp), mas sem exibir o nº do pedido.
-  let pedidoNum = null;
-  try {
-    const resp = await _jsonp(SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)), 12000);
-    if (resp && resp.ok && resp.pedido) pedidoNum = resp.pedido;
-  } catch (_) { /* rede/timeout: degrada para o fluxo antigo, sem bloquear o cliente */ }
-
   pedidoTotal = total;
-  _pedidoAtual = { pedido: pedidoNum, nome, whatsapp, total };
-
-  const numLine = document.getElementById('pedidoNumLine');
-  if (pedidoNum) {
-    numLine.textContent = `Pedido #${pedidoNum} registrado ✓`;
-    numLine.style.display = 'block';
-  } else {
-    numLine.style.display = 'none';
-  }
+  _pedidoAtual = { pedido: null, nome, whatsapp, total };
 
   const fora = _isForaHorario();
   document.getElementById('successMsg').textContent = fora
@@ -1070,6 +1053,11 @@ async function enviarPedido(e) {
   document.getElementById('waLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
   gerarQRPix(total);
 
+  // Tela de sucesso aparece NA HORA; o nº do pedido chega em segundo plano
+  const numLine = document.getElementById('pedidoNumLine');
+  numLine.textContent = 'Registrando seu pedido…';
+  numLine.style.display = 'block';
+
   btn.disabled = false;
   btn.textContent = 'Fazer pedido → confirmar pelo WhatsApp 🍪';
 
@@ -1078,6 +1066,19 @@ async function enviarPedido(e) {
   document.getElementById('formSection').style.display = 'none';
   document.getElementById('successScreen').classList.add('visible');
   document.getElementById('successScreen').scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Confirma a gravação no Sheets sem travar a UI (o GAS ainda gera imagem/Telegram em paralelo).
+  // Se a confirmação não vier, o cliente finaliza pelo WhatsApp do mesmo jeito.
+  _jsonp(SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)), 15000)
+    .then(resp => {
+      if (resp && resp.ok && resp.pedido) {
+        _pedidoAtual.pedido = resp.pedido;
+        numLine.textContent = `Pedido #${resp.pedido} registrado ✓`;
+      } else {
+        numLine.style.display = 'none';
+      }
+    })
+    .catch(() => { numLine.style.display = 'none'; });
 }
 
 function _aplicarMascaraWA(el) {
