@@ -57,12 +57,18 @@ mikiescookies/
 ├── bot_tests.gs            # Funções de teste do GAS (gitignored)
 ├── ISSUES.md               # Bugs conhecidos e melhorias futuras
 └── images/
-    ├── hero_bg.jpg
-    ├── choc_branco.jpg
-    ├── choc_leite.jpg
-    ├── dark.jpg
-    ├── red_velvet.jpg
-    └── berry.jpg
+    ├── ill-logo.png          # Ilustração da marca (servindo cookies)
+    ├── ill-duo.png            # Ilustração (dupla de cookies)
+    ├── ill-run.png            # Ilustração (figura correndo)
+    │                          #   (+ variantes -cream.png p/ fundo bordô)
+    ├── mikies-favicon.svg     # Monograma M
+    ├── apple-touch-icon.png   # Ícone iOS
+    ├── og-mikies.jpg          # Imagem de compartilhamento (OG)
+    ├── choc_branco.webp       # Fotos dos sabores (placeholder até as reais)
+    ├── choc_leite.webp
+    ├── dark.webp
+    ├── red_velvet.webp
+    └── berry.webp
 ```
 
 ## Deploy
