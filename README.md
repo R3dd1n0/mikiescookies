@@ -67,7 +67,7 @@ mikiescookies/
     ├── sabor-*.webp           # Fotos dos 6 sabores (menu oficial)
     │                          #   choc-leite, ninho, red-velvet, black, morango, matcha
     └── pack-*.webp            # Fotos das 5 embalagens (menu oficial)
-                               #   mimo, dip, jewel, togo, pocket
+                               #   mimo, dip, jewel, toshare, pocket
 ```
 
 ## Deploy
