@@ -13,13 +13,31 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://mikies.com.br/images/og-mikies.jpg">
-<meta name="theme-color" content="#6B0F2A">
+<meta name="theme-color" content="#630E19">
 <link rel="canonical" href="https://mikies.com.br/">
 <link rel="icon" type="image/svg+xml" href="images/mikies-favicon.svg">
 <link rel="shortcut icon" href="images/mikies-favicon.svg">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <title>Mikies Cookies — Peça os seus</title>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Bakery",
+  "name": "Mikies Cookies",
+  "description": "Cookies artesanais em Fortaleza, CE. Vários formatos e 6 sabores. Peça pelo WhatsApp e pague com Pix.",
+  "url": "https://mikies.com.br/",
+  "image": "https://mikies.com.br/images/og-mikies.jpg",
+  "servesCuisine": "Cookies artesanais",
+  "areaServed": { "@type": "City", "name": "Fortaleza" },
+  "address": { "@type": "PostalAddress", "addressLocality": "Fortaleza", "addressRegion": "CE", "addressCountry": "BR" },
+  "sameAs": ["https://instagram.com/mikiescookies"],
+  "priceRange": "$"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
 <style>
   :root {
     --bordo:      #630E19;
@@ -121,8 +139,8 @@
   .cookie-card:nth-child(4){animation-delay:.20s}
   .cookie-card:nth-child(5){animation-delay:.25s}
   @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-  .cookie-card:hover { border-color:var(--caramel); transform:translateY(-3px); box-shadow:0 8px 24px rgba(107,15,42,0.12); }
-  .cookie-card.selected { border-color:var(--bordo); box-shadow:0 0 0 3px rgba(107,15,42,0.15); }
+  .cookie-card:hover { border-color:var(--caramel); transform:translateY(-3px); box-shadow:0 8px 24px rgba(99,14,25,0.12); }
+  .cookie-card.selected { border-color:var(--bordo); box-shadow:0 0 0 3px rgba(99,14,25,0.15); }
   .card-img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; transition:transform 0.4s ease; }
   .cookie-card:hover .card-img { transform:scale(1.04); }
   .card-body { padding:1rem 1rem 1.1rem; display:flex; flex-direction:column; flex:1; }
@@ -143,7 +161,7 @@
   .form-section { background:var(--bege-lt); padding:4rem 1.5rem; }
   .form-wrap { max-width:760px; margin:0 auto; }
   .summary-box {
-    background:var(--cream); border:1.5px solid rgba(107,15,42,0.12);
+    background:var(--cream); border:1.5px solid rgba(99,14,25,0.12);
     border-radius:14px; padding:1.25rem 1.4rem; margin-bottom:1.25rem;
   }
   .empty-cart { text-align:center; font-size:13.5px; color:var(--light-txt); padding:0.5rem 0; }
@@ -161,12 +179,12 @@
   .entrega-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
   .entrega-card label {
     display:flex; flex-direction:column; align-items:center; text-align:center;
-    padding:14px 10px; border:1.5px solid rgba(107,15,42,0.18);
+    padding:14px 10px; border:1.5px solid rgba(99,14,25,0.18);
     border-radius:14px; cursor:pointer; background:var(--bege-lt);
     transition:all 0.2s ease; gap:3px; height:100%;
   }
   .entrega-card label:hover { border-color:var(--caramel); }
-  .entrega-card input:checked + label { border-color:var(--bordo); background:var(--cream); box-shadow:0 0 0 2px rgba(107,15,42,0.12); }
+  .entrega-card input:checked + label { border-color:var(--bordo); background:var(--cream); box-shadow:0 0 0 2px rgba(99,14,25,0.12); }
   .entrega-icon { font-size:1.5rem; margin-bottom:2px; }
   .entrega-nome { font-size:13px; font-weight:600; color:var(--bordo); }
   .entrega-preco { font-size:12px; color:var(--caramel); font-weight:500; }
@@ -183,17 +201,17 @@
   .quando-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
   .quando-card label {
     display:flex; align-items:center; gap:12px;
-    padding:11px 14px; border:1.5px solid rgba(107,15,42,0.18);
+    padding:11px 14px; border:1.5px solid rgba(99,14,25,0.18);
     border-radius:12px; cursor:pointer; background:var(--bege-lt);
     transition:all 0.2s ease;
   }
   .quando-card label:hover { border-color:var(--caramel); }
-  .quando-card input:checked + label { border-color:var(--bordo); background:var(--cream); box-shadow:0 0 0 2px rgba(107,15,42,0.12); }
+  .quando-card input:checked + label { border-color:var(--bordo); background:var(--cream); box-shadow:0 0 0 2px rgba(99,14,25,0.12); }
   .quando-icon { font-size:1.25rem; }
   .quando-nome { font-size:14px; font-weight:500; color:var(--bordo); flex:1; }
   .quando-sub { font-size:11.5px; color:var(--light-txt); }
   .quando-date {
-    width:100%; padding:11px 14px; border:1.5px solid rgba(107,15,42,0.18);
+    width:100%; padding:11px 14px; border:1.5px solid rgba(99,14,25,0.18);
     border-radius:12px; background:var(--cream); font-family:'Jost',sans-serif;
     font-size:14px; color:var(--dark-txt); outline:none; transition:border-color 0.2s;
     margin-top:8px; display:none;
@@ -226,7 +244,7 @@
   .form-group { margin-bottom:1.25rem; }
   .form-group label { display:block; font-size:13px; font-weight:500; color:var(--mid-txt); margin-bottom:6px; }
   .form-group input {
-    width:100%; padding:12px 14px; border:1.5px solid rgba(107,15,42,0.18);
+    width:100%; padding:12px 14px; border:1.5px solid rgba(99,14,25,0.18);
     border-radius:10px; background:var(--cream); font-family:'Jost',sans-serif;
     font-size:15px; color:var(--dark-txt); outline:none; transition:border-color 0.2s;
   }
@@ -239,7 +257,7 @@
 
   /* CAMPOS ESPECIAIS */
   .form-select {
-    width:100%; padding:12px 14px; border:1.5px solid rgba(107,15,42,0.18);
+    width:100%; padding:12px 14px; border:1.5px solid rgba(99,14,25,0.18);
     border-radius:10px; background:var(--cream); font-family:'Jost',sans-serif;
     font-size:15px; color:var(--dark-txt); outline:none; transition:border-color 0.2s;
     cursor:pointer; appearance:none; -webkit-appearance:none;
@@ -248,7 +266,7 @@
   }
   .form-select:focus { border-color:var(--caramel); }
   .form-textarea {
-    width:100%; padding:12px 14px; border:1.5px solid rgba(107,15,42,0.18);
+    width:100%; padding:12px 14px; border:1.5px solid rgba(99,14,25,0.18);
     border-radius:10px; background:var(--cream); font-family:'Jost',sans-serif;
     font-size:15px; color:var(--dark-txt); outline:none; transition:border-color 0.2s;
     resize:none; line-height:1.5;
@@ -347,7 +365,7 @@
   .cfg-section-label small { display:block; font-weight:400; font-size:11.5px; color:var(--light-txt); margin-top:2px; }
   .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1.1rem; }
   .chip {
-    padding:8px 14px; border:1.5px solid rgba(107,15,42,0.2); border-radius:100px;
+    padding:8px 14px; border:1.5px solid rgba(99,14,25,0.2); border-radius:100px;
     background:var(--bege-lt); color:var(--mid-txt); font-size:13px; cursor:pointer;
     transition:all .15s; font-family:inherit; user-select:none;
   }
