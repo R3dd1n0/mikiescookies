@@ -273,7 +273,7 @@ const EMBALAGENS = [
   { id:'mimo',    nome:'Mikies Mimo',     preco:59.90, matchaExtra:5, cookies:40, pesoG:300, modo:'sabores',  limite:'até 3 sabores',                     molhos:'' },
   { id:'dip',     nome:'Mikies Dip',      preco:64.90, matchaExtra:4, cookies:30, pesoG:225, modo:'sabores',  limite:'até 3 sabores',                     molhos:'Nutela + Caramelo salgado' },
   { id:'jewel',   nome:'Mikies Jewel',    preco:39.90, matchaExtra:5, cookies:24, pesoG:180, modo:'sabores',  limite:'1 sabor',                           molhos:'' },
-  { id:'toshare', nome:'Mikies to Share', preco:25.90, matchaExtra:3, cookies:20, pesoG:150, modo:'sabores',  limite:'1 sabor',                           molhos:'' },
+  { id:'toshare', nome:'Mikies to Share', preco:25.90, matchaExtra:4, cookies:20, pesoG:150, modo:'sabores',  limite:'1 sabor',                           molhos:'' },
   { id:'pocket',  nome:'Mikies Pocket',   preco:12.90, matchaExtra:2, cookies:6,  pesoG:40,  modo:'unidades', limite:'1 sabor/pacote · mín. 10 pacotes',  molhos:'' },
 ];
 const SABORES_LISTA = ['Chocolate ao Leite', 'Ninho', 'Red Velvet', 'Black', 'Morango', 'Matcha'];
