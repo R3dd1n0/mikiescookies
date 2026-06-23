@@ -64,11 +64,10 @@ mikiescookies/
     ├── mikies-favicon.svg     # Monograma M
     ├── apple-touch-icon.png   # Ícone iOS
     ├── og-mikies.jpg          # Imagem de compartilhamento (OG)
-    ├── choc_branco.webp       # Fotos dos sabores (placeholder até as reais)
-    ├── choc_leite.webp
-    ├── dark.webp
-    ├── red_velvet.webp
-    └── berry.webp
+    ├── sabor-*.webp           # Fotos dos 6 sabores (menu oficial)
+    │                          #   choc-leite, ninho, red-velvet, black, morango, matcha
+    └── pack-*.webp            # Fotos das 5 embalagens (menu oficial)
+                               #   mimo, dip, jewel, togo, pocket
 ```
 
 ## Deploy
