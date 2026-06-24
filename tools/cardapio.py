@@ -44,7 +44,7 @@ SABORES = [
     ("Matcha",             "Matcha com chocolate branco; levemente amarga.", True),
 ]
 
-WA_URL, IG_URL, SITE_URL = "https://wa.me/5585920080270", "https://instagram.com/mikiescookies", "https://mikies.com.br"
+WA_URL, IG_URL, SITE_URL = "https://wa.me/5585997954846", "https://instagram.com/mikiescookies", "https://mikies.com.br"
 
 c = canvas.Canvas(OUT, pagesize=A4)
 c.setTitle("Cardápio — Mikies Cookies")
